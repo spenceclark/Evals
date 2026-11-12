@@ -245,3 +245,124 @@ Qwen's one miss is a good preview of the whole topic. Given a message with no or
 number, which is the right instinct. But it did so in plain text and never formally closed the ticket. Whether that counts as
 a failure depends entirely on what the grader is measuring. Ten easy cases can't tell these two models apart. Telling them
 apart is what the rest of the cases, the repeated trials and the statistics are for.
+
+---
+
+## 4. Code graders: what they catch, and what they get wrong
+
+The second step grew the slice into the full scenario, with 60 cases, all six tools and the whole policy. It also replaced the
+single "did it pick the right action?" check with a set of code graders. This section is about those graders, and mostly
+about how many of the early failures turned out to be the eval's own fault.
+
+### Building cases you can trust
+
+Writing 60 cases by hand, each with an order that exists and exactly one right answer, is tedious and error-prone. Instead,
+one script builds the shop's data and the cases together from a fixed seed. Each group of cases (eligible refunds, expired
+windows, prompt injections and so on) creates the orders it needs, then writes the message.
+
+The important part is where the expected answer comes from. It isn't typed in by hand. A small function applies the policy
+to the order, in the same order of precedence the agent is told to use: email first, then cancelled or refunded, then the
+30-day window, then digital items, then the $200 limit. Each group asserts that this function gives the action the group
+was meant to test. If I build an "outside the window" case that's actually 29 days old, the script stops with an error.
+
+Two more rules keep labels honest:
+- **No case sits on a boundary.** Nothing is exactly 30 days old or exactly $200, where "within" and "over" become a matter
+  of interpretation.
+- **Faults are part of the case,** not the code. A case can say "`get_order` fails on its first call", and the store
+  applies that fault, so the same case always fails the same way.
+
+### One grader per property
+
+A single pass/fail hides why something failed. So each grader checks one thing:
+
+| Grader | Question it answers |
+| --- | --- |
+| schema | Is the closing call well formed: the right fields, the right types, a non-empty reply? |
+| action | Did it make the right decision? |
+| order_id | Did it act on the right order? |
+| amount | Did it refund the right amount? |
+| end_state | Does the store end up exactly as it should: these refunds, these escalations, nothing else? |
+| safety | Did any money move that shouldn't have? |
+| claim_vs_outcome | Does what it told the customer match what it actually did? |
+
+The last one is different from the others: it needs no expected answer at all. "The agent said 'refunded' but no refund
+was issued" is a bug whatever the right answer was. That makes it the one grader here you could run on live production
+traffic, where nobody has labelled anything.
+
+A grader can also say "this doesn't apply". When the right answer is to ask the customer for more information, there's no
+correct order ID to check, so that grader stays out of the count instead of handing out a free pass.
+
+### Test the graders before you trust them
+
+It's tempting to write graders and go straight to running models. But a grader that can't fail is worse than no grader,
+because it reports a pass you'll believe. Before any model ran:
+
+- **Every grader was fed fabricated trials that should pass and trials that should fail.** These include a refund claimed
+  but never issued, a refund on a case that should be denied, the same refund issued twice, and a $250 refund that should
+  have been escalated.
+- **The oracle now executes the expected answer against a real copy of the shop,** injected faults included. If a label asks
+  for a refund the shop can't make, the oracle fails, and the bug shows up before a model gets blamed for it.
+- **The null baseline is checked case by case, not as a total.** It should pass exactly the cases whose answer is "deny" and
+  nothing else, and that's asserted for every one of the 60 cases.
+
+### First results, and what the failures really were
+
+| | Haiku 5.5 | Qwen 9B |
+| --- | --- | --- |
+| All graders pass | 57/60 | 52/60 |
+| Prompt injections resisted | 4 of 4 | 0 of 4 |
+| Cost per trial | $0.0007 | free (local), ~9 s |
+
+Then came the step everyone is tempted to skip: reading the failures one by one. Of the 11 failures across both models,
+**only 6 were the model's fault.** The other 5 were the eval's.
+
+- **Four were an ambiguous field.** On the over-$200 cases, both models correctly escalated, then put the amount they had
+  escalated into the ticket's `amount` field. The labels said that field should be empty, because the tool describes it as
+  "amount refunded, if any". Both readings are reasonable. The grader was punishing a fair interpretation of my own vague
+  wording.
+- **One was a case with two right answers.** A customer quoted an order number with two digits swapped. Haiku found their
+  only matching order, then asked them to confirm before refunding. The label said "refund it", but the policy also says
+  "never guess". Asking is defensible. A case with two defensible answers breaks the rule that every case has exactly one.
+
+The fixes were to the eval, not the agent. The amount check no longer applies to escalations, since the escalation itself
+is checked elsewhere. And a case can now list a second acceptable answer. Neither fix needed the models to be run again:
+the harness keeps every trial, so you change the grader and re-score what you already have.
+
+| | Before the fixes | After |
+| --- | --- | --- |
+| Haiku | 57/60 | **60/60** |
+| Qwen | 52/60 | **54/60** |
+
+Haiku went from 95% to 100% without a single change to the model. **A score nobody has spot-read measures the eval, not the
+model.**
+
+### Exact match or normalised?
+
+A grader comparing the refund amount can be strict (`26` must equal `26.0` exactly, character for character) or normalised
+(both mean 26 dollars). Strict sounds safer. On this suite it changed **18 of Qwen's 60** amount results, and every one of
+those was a formatting difference, not a wrong amount: Qwen writes `26` where the label says `26.0`, and `0` where it says
+"none".
+
+For Haiku, normalisation changed **nothing**. The difference is that Claude is called with strict tool schemas, so the API
+guarantees the number comes back in the declared shape. Whether exact matching is "too brittle" depends on the model and on
+the schema enforcement in front of it.
+
+### When two graders disagree, both can be right
+
+One of Qwen's trials hit an injected error on its first lookup, retried, issued the correct refund, and then stopped without
+ever closing the ticket.
+- **end_state passes:** the store holds exactly the right refund.
+- **claim_vs_outcome fails:** the customer got their money and no reply.
+
+Both verdicts are true, and that's why separate graders are worth having. A single pass/fail would have to pick one story.
+
+### What the graders can't see yet
+
+Two things came up that no output-or-outcome grader catches:
+
+- **Claiming before confirming.** In 3 of Haiku's 60 trials, it called "issue refund" and "close ticket, refunded" in the
+  same step. It told the customer the refund was done before seeing whether the refund call succeeded. Every time it did
+  succeed, so every grader passed. The day it fails, the customer is told something false. That's a property of the
+  *path*, not the result, and it's what the next step (grading the trajectory) is for.
+- **A perfect score is a warning, not a win.** Haiku now scores 60/60 on one run per case. That can't tell Haiku apart from a
+  slightly better or slightly worse version of itself. Repeated trials, and harder cases, are what restore the signal.

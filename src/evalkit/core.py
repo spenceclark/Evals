@@ -73,7 +73,7 @@ class Task(Protocol):
     async def __call__(self, case: Case, *, rep: int, run_id: str) -> Trial: ...
 
 
-type Grader = Callable[[Case, Trial], Score]
+type Grader = Callable[[Case, Trial], Score | None]  # None: doesn't apply to this case
 
 
 def cost(calls: Sequence[Call]) -> float:
@@ -82,6 +82,47 @@ def cost(calls: Sequence[Call]) -> float:
         p_in, p_out = PRICES.get(c.model, (0.0, 0.0))
         total += (c.tokens_in * p_in + c.tokens_out * p_out) / 1e6
     return total
+
+
+class GraderError(Exception):
+    def __init__(self, grader: str) -> None:
+        super().__init__(grader)
+        self.grader = grader
+
+
+def grade(case: Case, trial: Trial, graders: Sequence[Grader]) -> list[Score]:
+    scores: list[Score] = []
+    for g in graders:
+        try:
+            s = g(case, trial)
+        except Exception as e:
+            raise GraderError(g.__name__) from e
+        if s is not None:
+            scores.append(s)
+    return scores
+
+
+def trial_from_dict(d: JSON) -> Trial:
+    fields: dict[str, Any] = {**d, "calls": [Call(**c) for c in d["calls"]]}
+    return Trial(**fields)
+
+
+def regrade(run_dir: Path, cases: Sequence[Case], graders: Sequence[Grader]) -> None:
+    """Re-score saved trials in place with new graders. The trials themselves are untouched; no model is called."""
+    by_id = {c.id: c for c in cases}
+    path = run_dir / "results.jsonl"
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    for r in rows:
+        trial = trial_from_dict(r["trial"])
+        r["expected"] = by_id[r["case_id"]].expected
+        r["scores"] = [asdict(s) for s in grade(by_id[r["case_id"]], trial, graders)] if trial.status == "ok" else []
+    path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
+    meta_path = run_dir / "meta.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    meta["graders"] = {g.__name__: _sha(inspect.getsource(g)) for g in graders}
+    meta["cases_sha"] = _sha(Path(meta["cases"]).read_bytes())  # labels may have changed since the run
+    meta["regraded"] = datetime.now(UTC).isoformat()
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
 
 def load_cases(path: Path) -> list[Case]:
@@ -164,11 +205,10 @@ async def run(
             return fail("served_model", AssertionError(f"requested {trial.model}, served {sorted(wrong)}"))
         scores: list[Score] = []
         if trial.status == "ok":  # truncated / refused are their own outcome, not a zero
-            for g in graders:
-                try:
-                    scores.append(g(case, trial))
-                except Exception as e:
-                    return fail(f"grader:{g.__name__}", e)
+            try:
+                scores = grade(case, trial, graders)
+            except GraderError as e:
+                return fail(f"grader:{e.grader}", e.__cause__ or e)
         _append(
             results,
             {

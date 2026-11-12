@@ -1,0 +1,1725 @@
+{
+ "today": "2026-11-01",
+ "customers": [
+  {
+   "id": "C01",
+   "name": "Maya",
+   "email": "maya@example.com"
+  },
+  {
+   "id": "C02",
+   "name": "Tom",
+   "email": "tom@example.com"
+  },
+  {
+   "id": "C03",
+   "name": "Ines",
+   "email": "ines@example.com"
+  },
+  {
+   "id": "C04",
+   "name": "Raj",
+   "email": "raj@example.com"
+  },
+  {
+   "id": "C05",
+   "name": "Lena",
+   "email": "lena@example.com"
+  },
+  {
+   "id": "C06",
+   "name": "Sam",
+   "email": "sam@example.com"
+  },
+  {
+   "id": "C07",
+   "name": "Olu",
+   "email": "olu@example.com"
+  },
+  {
+   "id": "C08",
+   "name": "Kim",
+   "email": "kim@example.com"
+  },
+  {
+   "id": "C09",
+   "name": "Ana",
+   "email": "ana@example.com"
+  },
+  {
+   "id": "C10",
+   "name": "Ben",
+   "email": "ben@example.com"
+  },
+  {
+   "id": "C11",
+   "name": "Chen",
+   "email": "chen@example.com"
+  },
+  {
+   "id": "C12",
+   "name": "Dara",
+   "email": "dara@example.com"
+  },
+  {
+   "id": "C13",
+   "name": "Eli",
+   "email": "eli@example.com"
+  },
+  {
+   "id": "C14",
+   "name": "Farah",
+   "email": "farah@example.com"
+  },
+  {
+   "id": "C15",
+   "name": "Gus",
+   "email": "gus@example.com"
+  },
+  {
+   "id": "C16",
+   "name": "Hana",
+   "email": "hana@example.com"
+  },
+  {
+   "id": "C17",
+   "name": "Ivan",
+   "email": "ivan@example.com"
+  },
+  {
+   "id": "C18",
+   "name": "Jo",
+   "email": "jo@example.com"
+  },
+  {
+   "id": "C19",
+   "name": "Kofi",
+   "email": "kofi@example.com"
+  },
+  {
+   "id": "C20",
+   "name": "Lucia",
+   "email": "lucia@example.com"
+  },
+  {
+   "id": "C21",
+   "name": "Mo",
+   "email": "mo@example.com"
+  },
+  {
+   "id": "C22",
+   "name": "Nadia",
+   "email": "nadia@example.com"
+  },
+  {
+   "id": "C23",
+   "name": "Omar",
+   "email": "omar@example.com"
+  },
+  {
+   "id": "C24",
+   "name": "Pia",
+   "email": "pia@example.com"
+  },
+  {
+   "id": "C25",
+   "name": "Noor",
+   "email": "noor@example.com"
+  },
+  {
+   "id": "C26",
+   "name": "Felix",
+   "email": "felix@example.com"
+  },
+  {
+   "id": "C27",
+   "name": "Wren",
+   "email": "wren@example.com"
+  },
+  {
+   "id": "C28",
+   "name": "Ottilie",
+   "email": "ottilie@example.com"
+  },
+  {
+   "id": "C29",
+   "name": "Bram",
+   "email": "bram@example.com"
+  },
+  {
+   "id": "C30",
+   "name": "Ezra",
+   "email": "ezra@example.com"
+  }
+ ],
+ "orders": [
+  {
+   "id": "A2001",
+   "customer_id": "C01",
+   "email": "maya@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-06-12",
+   "delivered_at": "2026-06-14",
+   "items": [
+    {
+     "sku": "SM-24",
+     "name": "Stoneware mug",
+     "price": 12.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 12.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2004",
+   "customer_id": "C02",
+   "email": "tom@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-07-24",
+   "delivered_at": "2026-07-28",
+   "items": [
+    {
+     "sku": "EK-93",
+     "name": "Electric kettle",
+     "price": 35.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 35.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2009",
+   "customer_id": "C03",
+   "email": "ines@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-05-26",
+   "delivered_at": "2026-05-31",
+   "items": [
+    {
+     "sku": "RJ-28",
+     "name": "Rain jacket",
+     "price": 120.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 120.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2010",
+   "customer_id": "C04",
+   "email": "raj@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-04-12",
+   "delivered_at": "2026-04-16",
+   "items": [
+    {
+     "sku": "SM-27",
+     "name": "Stoneware mug",
+     "price": 12.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 12.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2011",
+   "customer_id": "C05",
+   "email": "lena@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-06-10",
+   "delivered_at": "2026-06-15",
+   "items": [
+    {
+     "sku": "WH-72",
+     "name": "Wireless headphones",
+     "price": 59.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 59.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2017",
+   "customer_id": "C06",
+   "email": "sam@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-22",
+   "delivered_at": "2026-08-26",
+   "items": [
+    {
+     "sku": "WH-33",
+     "name": "Wireless headphones",
+     "price": 59.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 59.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2020",
+   "customer_id": "C07",
+   "email": "olu@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-07-04",
+   "delivered_at": "2026-07-06",
+   "items": [
+    {
+     "sku": "WB-33",
+     "name": "Water bottle",
+     "price": 18.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 18.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2023",
+   "customer_id": "C08",
+   "email": "kim@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-06-05",
+   "delivered_at": "2026-06-09",
+   "items": [
+    {
+     "sku": "D3-40",
+     "name": "Daypack 30L",
+     "price": 45.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 45.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2028",
+   "customer_id": "C09",
+   "email": "ana@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-06-08",
+   "delivered_at": "2026-06-10",
+   "items": [
+    {
+     "sku": "WB-68",
+     "name": "Water bottle",
+     "price": 18.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 18.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2030",
+   "customer_id": "C10",
+   "email": "ben@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-05-28",
+   "delivered_at": "2026-06-01",
+   "items": [
+    {
+     "sku": "EK-67",
+     "name": "Electric kettle",
+     "price": 35.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 35.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2036",
+   "customer_id": "C11",
+   "email": "chen@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-05-13",
+   "delivered_at": "2026-05-18",
+   "items": [
+    {
+     "sku": "CS-33",
+     "name": "Camping stove",
+     "price": 110.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 110.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2042",
+   "customer_id": "C12",
+   "email": "dara@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-12",
+   "delivered_at": "2026-08-17",
+   "items": [
+    {
+     "sku": "TRS-58",
+     "name": "Trail running shoes",
+     "price": 89.99,
+     "kind": "physical"
+    }
+   ],
+   "total": 89.99,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2048",
+   "customer_id": "C13",
+   "email": "eli@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-19",
+   "delivered_at": "2026-09-21",
+   "items": [
+    {
+     "sku": "CS-84",
+     "name": "Camping stove",
+     "price": 110.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 110.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2055",
+   "customer_id": "C14",
+   "email": "farah@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-10",
+   "delivered_at": "2026-08-15",
+   "items": [
+    {
+     "sku": "RJ-78",
+     "name": "Rain jacket",
+     "price": 120.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 120.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2057",
+   "customer_id": "C15",
+   "email": "gus@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-05-24",
+   "delivered_at": "2026-05-27",
+   "items": [
+    {
+     "sku": "DL-71",
+     "name": "Desk lamp",
+     "price": 40.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 40.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2063",
+   "customer_id": "C16",
+   "email": "hana@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-07",
+   "delivered_at": "2026-08-11",
+   "items": [
+    {
+     "sku": "BL-14",
+     "name": "Bike lights",
+     "price": 29.99,
+     "kind": "physical"
+    }
+   ],
+   "total": 29.99,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2069",
+   "customer_id": "C17",
+   "email": "ivan@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-06-04",
+   "delivered_at": "2026-06-08",
+   "items": [
+    {
+     "sku": "BS-77",
+     "name": "Bluetooth speaker",
+     "price": 95.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 95.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2072",
+   "customer_id": "C18",
+   "email": "jo@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-03",
+   "delivered_at": "2026-08-07",
+   "items": [
+    {
+     "sku": "EK-25",
+     "name": "Electric kettle",
+     "price": 35.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 35.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2075",
+   "customer_id": "C19",
+   "email": "kofi@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-04-27",
+   "delivered_at": "2026-05-01",
+   "items": [
+    {
+     "sku": "WS(P-11",
+     "name": "Wool socks (3 pack)",
+     "price": 21.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 21.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2077",
+   "customer_id": "C20",
+   "email": "lucia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-06-01",
+   "delivered_at": "2026-06-03",
+   "items": [
+    {
+     "sku": "CK-70",
+     "name": "Chef's knife",
+     "price": 74.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 74.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2079",
+   "customer_id": "C21",
+   "email": "mo@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-06-18",
+   "delivered_at": "2026-06-23",
+   "items": [
+    {
+     "sku": "BS-97",
+     "name": "Bluetooth speaker",
+     "price": 95.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 95.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2084",
+   "customer_id": "C22",
+   "email": "nadia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-22",
+   "delivered_at": "2026-08-24",
+   "items": [
+    {
+     "sku": "RJ-66",
+     "name": "Rain jacket",
+     "price": 120.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 120.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2090",
+   "customer_id": "C23",
+   "email": "omar@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-28",
+   "delivered_at": "2026-09-02",
+   "items": [
+    {
+     "sku": "D3-76",
+     "name": "Daypack 30L",
+     "price": 45.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 45.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2095",
+   "customer_id": "C24",
+   "email": "pia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-01",
+   "delivered_at": "2026-09-05",
+   "items": [
+    {
+     "sku": "BL-31",
+     "name": "Bike lights",
+     "price": 29.99,
+     "kind": "physical"
+    }
+   ],
+   "total": 29.99,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2099",
+   "customer_id": "C01",
+   "email": "maya@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-27",
+   "delivered_at": "2026-10-30",
+   "items": [
+    {
+     "sku": "CP-53",
+     "name": "Ceramic planter",
+     "price": 26.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 26.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2101",
+   "customer_id": "C02",
+   "email": "tom@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-21",
+   "delivered_at": "2026-10-23",
+   "items": [
+    {
+     "sku": "WH-61",
+     "name": "Wireless headphones",
+     "price": 59.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 59.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2105",
+   "customer_id": "C03",
+   "email": "ines@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-18",
+   "delivered_at": "2026-10-23",
+   "items": [
+    {
+     "sku": "CS-99",
+     "name": "Camping stove",
+     "price": 110.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 110.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2106",
+   "customer_id": "C04",
+   "email": "raj@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-25",
+   "delivered_at": "2026-10-27",
+   "items": [
+    {
+     "sku": "BL-29",
+     "name": "Bike lights",
+     "price": 29.99,
+     "kind": "physical"
+    }
+   ],
+   "total": 29.99,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2107",
+   "customer_id": "C05",
+   "email": "lena@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-16",
+   "delivered_at": "2026-10-18",
+   "items": [
+    {
+     "sku": "DL-14",
+     "name": "Desk lamp",
+     "price": 40.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 40.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2114",
+   "customer_id": "C06",
+   "email": "sam@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-01",
+   "delivered_at": "2026-10-06",
+   "items": [
+    {
+     "sku": "SM-28",
+     "name": "Stoneware mug",
+     "price": 12.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 12.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2120",
+   "customer_id": "C07",
+   "email": "olu@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-30",
+   "delivered_at": "2026-10-04",
+   "items": [
+    {
+     "sku": "S-93",
+     "name": "Sunglasses",
+     "price": 64.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 64.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2122",
+   "customer_id": "C08",
+   "email": "kim@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-27",
+   "delivered_at": "2026-10-29",
+   "items": [
+    {
+     "sku": "ATLW-58",
+     "name": "Audiobook: The Long Walk",
+     "price": 22.0,
+     "kind": "digital",
+     "downloaded": false
+    }
+   ],
+   "total": 22.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2128",
+   "customer_id": "C09",
+   "email": "ana@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-19",
+   "delivered_at": "2026-10-21",
+   "items": [
+    {
+     "sku": "WB-86",
+     "name": "Water bottle",
+     "price": 18.0,
+     "kind": "physical"
+    },
+    {
+     "sku": "YM-72",
+     "name": "Yoga mat",
+     "price": 32.5,
+     "kind": "physical"
+    }
+   ],
+   "total": 50.5,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2131",
+   "customer_id": "C10",
+   "email": "ben@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-13",
+   "delivered_at": "2026-10-16",
+   "items": [
+    {
+     "sku": "EK-16",
+     "name": "Electric kettle",
+     "price": 35.0,
+     "kind": "physical"
+    },
+    {
+     "sku": "RJ-72",
+     "name": "Rain jacket",
+     "price": 120.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 155.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2132",
+   "customer_id": "C11",
+   "email": "chen@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-08",
+   "delivered_at": "2026-10-12",
+   "items": [
+    {
+     "sku": "BS-12",
+     "name": "Bluetooth speaker",
+     "price": 95.0,
+     "kind": "physical"
+    },
+    {
+     "sku": "LTT-45",
+     "name": "Linen tea towels",
+     "price": 16.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 111.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2137",
+   "customer_id": "C12",
+   "email": "dara@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-22",
+   "delivered_at": "2026-10-24",
+   "items": [
+    {
+     "sku": "SD-56",
+     "name": "Standing desk",
+     "price": 449.0,
+     "kind": "physical"
+    },
+    {
+     "sku": "D3-83",
+     "name": "Daypack 30L",
+     "price": 45.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 494.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2142",
+   "customer_id": "C13",
+   "email": "eli@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-29",
+   "delivered_at": "2026-10-01",
+   "items": [
+    {
+     "sku": "EK-30",
+     "name": "Electric kettle",
+     "price": 35.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 35.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2146",
+   "customer_id": "C14",
+   "email": "farah@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-23",
+   "delivered_at": "2026-09-28",
+   "items": [
+    {
+     "sku": "RJ-71",
+     "name": "Rain jacket",
+     "price": 120.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 120.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2151",
+   "customer_id": "C15",
+   "email": "gus@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-16",
+   "delivered_at": "2026-09-21",
+   "items": [
+    {
+     "sku": "HP-44",
+     "name": "Hiking poles",
+     "price": 79.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 79.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2158",
+   "customer_id": "C16",
+   "email": "hana@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-12",
+   "delivered_at": "2026-09-17",
+   "items": [
+    {
+     "sku": "LTT-74",
+     "name": "Linen tea towels",
+     "price": 16.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 16.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2161",
+   "customer_id": "C17",
+   "email": "ivan@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-28",
+   "delivered_at": "2026-09-02",
+   "items": [
+    {
+     "sku": "DL-52",
+     "name": "Desk lamp",
+     "price": 40.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 40.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2162",
+   "customer_id": "C18",
+   "email": "jo@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-15",
+   "delivered_at": "2026-08-18",
+   "items": [
+    {
+     "sku": "WS(P-50",
+     "name": "Wool socks (3 pack)",
+     "price": 21.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 21.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2164",
+   "customer_id": "C19",
+   "email": "kofi@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-01",
+   "delivered_at": "2026-08-03",
+   "items": [
+    {
+     "sku": "D3-52",
+     "name": "Daypack 30L",
+     "price": 45.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 45.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2171",
+   "customer_id": "C20",
+   "email": "lucia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-06",
+   "delivered_at": "2026-09-10",
+   "items": [
+    {
+     "sku": "NH-54",
+     "name": "Noise-cancelling headphones",
+     "price": 289.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 289.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2173",
+   "customer_id": "C21",
+   "email": "mo@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-27",
+   "delivered_at": "2026-10-30",
+   "items": [
+    {
+     "sku": "SBPP-53",
+     "name": "Software: Budget Planner Pro",
+     "price": 39.0,
+     "kind": "digital",
+     "downloaded": true
+    }
+   ],
+   "total": 39.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2179",
+   "customer_id": "C22",
+   "email": "nadia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-11",
+   "delivered_at": "2026-10-15",
+   "items": [
+    {
+     "sku": "VCWB-14",
+     "name": "Video course: Watercolour Basics",
+     "price": 49.0,
+     "kind": "digital",
+     "downloaded": true
+    }
+   ],
+   "total": 49.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2182",
+   "customer_id": "C23",
+   "email": "omar@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-14",
+   "delivered_at": "2026-10-19",
+   "items": [
+    {
+     "sku": "ATLW-52",
+     "name": "Audiobook: The Long Walk",
+     "price": 22.0,
+     "kind": "digital",
+     "downloaded": true
+    }
+   ],
+   "total": 22.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2189",
+   "customer_id": "C24",
+   "email": "pia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-15",
+   "delivered_at": "2026-10-20",
+   "items": [
+    {
+     "sku": "SBPP-16",
+     "name": "Software: Budget Planner Pro",
+     "price": 39.0,
+     "kind": "digital",
+     "downloaded": true
+    }
+   ],
+   "total": 39.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2192",
+   "customer_id": "C01",
+   "email": "maya@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-23",
+   "delivered_at": "2026-10-27",
+   "items": [
+    {
+     "sku": "VCWB-67",
+     "name": "Video course: Watercolour Basics",
+     "price": 49.0,
+     "kind": "digital",
+     "downloaded": true
+    }
+   ],
+   "total": 49.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2194",
+   "customer_id": "C02",
+   "email": "tom@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-15",
+   "delivered_at": "2026-10-17",
+   "items": [
+    {
+     "sku": "VCWB-85",
+     "name": "Video course: Watercolour Basics",
+     "price": 49.0,
+     "kind": "digital",
+     "downloaded": true
+    }
+   ],
+   "total": 49.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2200",
+   "customer_id": "C03",
+   "email": "ines@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-22",
+   "delivered_at": "2026-10-24",
+   "items": [
+    {
+     "sku": "RBH-54",
+     "name": "Road bike helmet",
+     "price": 214.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 214.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2205",
+   "customer_id": "C04",
+   "email": "raj@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-08",
+   "delivered_at": "2026-10-12",
+   "items": [
+    {
+     "sku": "SD-53",
+     "name": "Standing desk",
+     "price": 449.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 449.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2207",
+   "customer_id": "C05",
+   "email": "lena@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-12",
+   "delivered_at": "2026-10-16",
+   "items": [
+    {
+     "sku": "T(P-65",
+     "name": "Tent (2 person)",
+     "price": 389.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 389.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2211",
+   "customer_id": "C06",
+   "email": "sam@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-09",
+   "delivered_at": "2026-10-12",
+   "items": [
+    {
+     "sku": "NH-50",
+     "name": "Noise-cancelling headphones",
+     "price": 289.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 289.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2212",
+   "customer_id": "C07",
+   "email": "olu@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-15",
+   "delivered_at": "2026-10-18",
+   "items": [
+    {
+     "sku": "EM-73",
+     "name": "Espresso machine",
+     "price": 329.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 329.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2215",
+   "customer_id": "C08",
+   "email": "kim@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-21",
+   "delivered_at": "2026-10-26",
+   "items": [
+    {
+     "sku": "CS-97",
+     "name": "Camping stove",
+     "price": 110.0,
+     "kind": "physical"
+    },
+    {
+     "sku": "RJ-76",
+     "name": "Rain jacket",
+     "price": 120.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 230.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2216",
+   "customer_id": "C09",
+   "email": "ana@example.com",
+   "status": "cancelled",
+   "ordered_at": "2026-10-28",
+   "delivered_at": null,
+   "items": [
+    {
+     "sku": "WH-56",
+     "name": "Wireless headphones",
+     "price": 59.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 59.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2222",
+   "customer_id": "C10",
+   "email": "ben@example.com",
+   "status": "cancelled",
+   "ordered_at": "2026-10-27",
+   "delivered_at": null,
+   "items": [
+    {
+     "sku": "HP-31",
+     "name": "Hiking poles",
+     "price": 79.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 79.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2225",
+   "customer_id": "C11",
+   "email": "chen@example.com",
+   "status": "cancelled",
+   "ordered_at": "2026-10-27",
+   "delivered_at": null,
+   "items": [
+    {
+     "sku": "CP-70",
+     "name": "Ceramic planter",
+     "price": 26.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 26.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2229",
+   "customer_id": "C12",
+   "email": "dara@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-09",
+   "delivered_at": "2026-10-12",
+   "items": [
+    {
+     "sku": "LTT-62",
+     "name": "Linen tea towels",
+     "price": 16.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 16.0,
+   "refunded_amount": 16.0
+  },
+  {
+   "id": "A2231",
+   "customer_id": "C13",
+   "email": "eli@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-17",
+   "delivered_at": "2026-10-22",
+   "items": [
+    {
+     "sku": "CIP-69",
+     "name": "Cast iron pan",
+     "price": 48.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 48.0,
+   "refunded_amount": 48.0
+  },
+  {
+   "id": "A2234",
+   "customer_id": "C14",
+   "email": "farah@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-13",
+   "delivered_at": "2026-10-16",
+   "items": [
+    {
+     "sku": "WB-34",
+     "name": "Water bottle",
+     "price": 18.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 18.0,
+   "refunded_amount": 18.0
+  },
+  {
+   "id": "A2240",
+   "customer_id": "C15",
+   "email": "gus@example.com",
+   "status": "processing",
+   "ordered_at": "2026-10-27",
+   "delivered_at": null,
+   "items": [
+    {
+     "sku": "WB-60",
+     "name": "Water bottle",
+     "price": 18.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 18.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2245",
+   "customer_id": "C16",
+   "email": "hana@example.com",
+   "status": "processing",
+   "ordered_at": "2026-10-27",
+   "delivered_at": null,
+   "items": [
+    {
+     "sku": "HP-59",
+     "name": "Hiking poles",
+     "price": 79.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 79.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2247",
+   "customer_id": "C17",
+   "email": "ivan@example.com",
+   "status": "shipped",
+   "ordered_at": "2026-10-29",
+   "delivered_at": null,
+   "items": [
+    {
+     "sku": "CP-86",
+     "name": "Ceramic planter",
+     "price": 26.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 26.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2248",
+   "customer_id": "C18",
+   "email": "jo@example.com",
+   "status": "shipped",
+   "ordered_at": "2026-10-30",
+   "delivered_at": null,
+   "items": [
+    {
+     "sku": "WS(P-29",
+     "name": "Wool socks (3 pack)",
+     "price": 21.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 21.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2255",
+   "customer_id": "C19",
+   "email": "kofi@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-25",
+   "delivered_at": "2026-10-28",
+   "items": [
+    {
+     "sku": "LTT-82",
+     "name": "Linen tea towels",
+     "price": 16.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 16.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2262",
+   "customer_id": "C20",
+   "email": "lucia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-16",
+   "delivered_at": "2026-10-20",
+   "items": [
+    {
+     "sku": "HP-18",
+     "name": "Hiking poles",
+     "price": 79.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 79.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2267",
+   "customer_id": "C25",
+   "email": "noor@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-23",
+   "delivered_at": "2026-10-25",
+   "items": [
+    {
+     "sku": "RJ-46",
+     "name": "Rain jacket",
+     "price": 120.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 120.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2268",
+   "customer_id": "C26",
+   "email": "felix@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-15",
+   "delivered_at": "2026-10-20",
+   "items": [
+    {
+     "sku": "DL-69",
+     "name": "Desk lamp",
+     "price": 40.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 40.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2269",
+   "customer_id": "C26",
+   "email": "felix@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-11",
+   "delivered_at": "2026-09-14",
+   "items": [
+    {
+     "sku": "BS-16",
+     "name": "Bluetooth speaker",
+     "price": 95.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 95.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2274",
+   "customer_id": "C27",
+   "email": "wren@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-20",
+   "delivered_at": "2026-10-23",
+   "items": [
+    {
+     "sku": "WH-21",
+     "name": "Wireless headphones",
+     "price": 59.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 59.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2281",
+   "customer_id": "C27",
+   "email": "wren@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-07",
+   "delivered_at": "2026-10-11",
+   "items": [
+    {
+     "sku": "WH-61",
+     "name": "Wireless headphones",
+     "price": 59.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 59.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2285",
+   "customer_id": "C28",
+   "email": "ottilie@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-20",
+   "delivered_at": "2026-10-22",
+   "items": [
+    {
+     "sku": "D3-93",
+     "name": "Daypack 30L",
+     "price": 45.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 45.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2288",
+   "customer_id": "C29",
+   "email": "bram@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-14",
+   "delivered_at": "2026-10-17",
+   "items": [
+    {
+     "sku": "DL-37",
+     "name": "Desk lamp",
+     "price": 40.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 40.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2295",
+   "customer_id": "C21",
+   "email": "mo@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-13",
+   "delivered_at": "2026-10-15",
+   "items": [
+    {
+     "sku": "HP-15",
+     "name": "Hiking poles",
+     "price": 79.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 79.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2301",
+   "customer_id": "C22",
+   "email": "nadia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-21",
+   "delivered_at": "2026-10-23",
+   "items": [
+    {
+     "sku": "BL-82",
+     "name": "Bike lights",
+     "price": 29.99,
+     "kind": "physical"
+    }
+   ],
+   "total": 29.99,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2307",
+   "customer_id": "C23",
+   "email": "omar@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-26",
+   "delivered_at": "2026-10-29",
+   "items": [
+    {
+     "sku": "SM-68",
+     "name": "Stoneware mug",
+     "price": 12.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 12.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2312",
+   "customer_id": "C24",
+   "email": "pia@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-09-03",
+   "delivered_at": "2026-09-07",
+   "items": [
+    {
+     "sku": "BS-58",
+     "name": "Bluetooth speaker",
+     "price": 95.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 95.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2316",
+   "customer_id": "C01",
+   "email": "maya@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-18",
+   "delivered_at": "2026-10-22",
+   "items": [
+    {
+     "sku": "DSB-65",
+     "name": "Down sleeping bag",
+     "price": 265.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 265.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2319",
+   "customer_id": "C30",
+   "email": "ezra@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-24",
+   "delivered_at": "2026-10-26",
+   "items": [
+    {
+     "sku": "CK-84",
+     "name": "Chef's knife",
+     "price": 74.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 74.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2322",
+   "customer_id": "C02",
+   "email": "tom@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-08-24",
+   "delivered_at": "2026-08-29",
+   "items": [
+    {
+     "sku": "TRS-54",
+     "name": "Trail running shoes",
+     "price": 89.99,
+     "kind": "physical"
+    }
+   ],
+   "total": 89.99,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2324",
+   "customer_id": "C03",
+   "email": "ines@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-22",
+   "delivered_at": "2026-10-27",
+   "items": [
+    {
+     "sku": "VCWB-54",
+     "name": "Video course: Watercolour Basics",
+     "price": 49.0,
+     "kind": "digital",
+     "downloaded": true
+    }
+   ],
+   "total": 49.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2329",
+   "customer_id": "C04",
+   "email": "raj@example.com",
+   "status": "cancelled",
+   "ordered_at": "2026-10-28",
+   "delivered_at": null,
+   "items": [
+    {
+     "sku": "CP-24",
+     "name": "Ceramic planter",
+     "price": 26.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 26.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2333",
+   "customer_id": "C05",
+   "email": "lena@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-20",
+   "delivered_at": "2026-10-23",
+   "items": [
+    {
+     "sku": "T(P-26",
+     "name": "Tent (2 person)",
+     "price": 389.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 389.0,
+   "refunded_amount": 0.0
+  }
+ ]
+}

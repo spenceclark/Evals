@@ -54,9 +54,15 @@ class LLM(Protocol):
     def tool_results(self, results: list[tuple[str, str, bool]]) -> None: ...
 
 
+# strict: the API guarantees tool inputs match the schema (Claude only; Ollama doesn't enforce it).
+ANTHROPIC_TOOLS = cast(list[ToolParam], [{**t, "strict": True} for t in TOOLS])
+
+
 class AnthropicLLM:
-    def __init__(self, client: AsyncAnthropic, model: str, effort: Effort, max_tokens: int, user: str) -> None:
-        self.client, self.model, self.max_tokens = client, model, max_tokens
+    def __init__(
+        self, client: AsyncAnthropic, model: str, effort: Effort, max_tokens: int, user: str, headers: dict[str, str]
+    ) -> None:
+        self.client, self.model, self.max_tokens, self.headers = client, model, max_tokens, headers
         self.effort: Effort = effort
         self.native: list[MessageParam] = [{"role": "user", "content": user}]
 
@@ -67,8 +73,9 @@ class AnthropicLLM:
             max_tokens=self.max_tokens,
             system=SYSTEM_PROMPT,
             messages=self.native,
-            tools=cast(list[ToolParam], TOOLS),
+            tools=ANTHROPIC_TOOLS,
             output_config={"effort": self.effort},
+            extra_headers=self.headers,
         )
         ms = (time.perf_counter() - t0) * 1000
         self.native.append({"role": "assistant", "content": r.content})
@@ -96,8 +103,8 @@ OPENAI_TOOLS: list[ChatCompletionToolParam] = [
 
 
 class OpenAILLM:
-    def __init__(self, client: AsyncOpenAI, model: str, max_tokens: int, user: str) -> None:
-        self.client, self.model, self.max_tokens = client, model, max_tokens
+    def __init__(self, client: AsyncOpenAI, model: str, max_tokens: int, user: str, headers: dict[str, str]) -> None:
+        self.client, self.model, self.max_tokens, self.headers = client, model, max_tokens, headers
         self.native: list[ChatCompletionMessageParam] = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user},
@@ -106,7 +113,11 @@ class OpenAILLM:
     async def step(self) -> Step:
         t0 = time.perf_counter()
         r = await self.client.chat.completions.create(
-            model=self.model, max_tokens=self.max_tokens, messages=self.native, tools=OPENAI_TOOLS
+            model=self.model,
+            max_tokens=self.max_tokens,
+            messages=self.native,
+            tools=OPENAI_TOOLS,
+            extra_headers=self.headers,
         )
         ms = (time.perf_counter() - t0) * 1000
         m, finish = r.choices[0].message, r.choices[0].finish_reason
@@ -147,7 +158,7 @@ class AgentResult:
     stop_reason: str = ""
 
 
-async def run_agent(llm: LLM, user: str, store: Store, max_steps: int = 10) -> AgentResult:
+async def run_agent(llm: LLM, user: str, store: Store, max_steps: int = 12) -> AgentResult:
     res = AgentResult(messages=[{"role": "user", "text": user}])
     for _ in range(max_steps):
         step = await llm.step()

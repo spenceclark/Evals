@@ -15,6 +15,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any, cast
 
+from supportdesk.task import trial_tag
+
 type JSON = dict[str, Any]
 
 VESSEL = os.environ.get("VESSEL_URL", "http://127.0.0.1:4550").rstrip("/")
@@ -91,10 +93,11 @@ def check(run_dir: Path, case_id: str | None) -> bool:
     meta = json.loads((run_dir / "meta.json").read_text(encoding="utf-8"))
     rows = [json.loads(line) for line in (run_dir / "results.jsonl").read_text(encoding="utf-8").splitlines()]
     row = next(r for r in rows if case_id in (None, r["case_id"]))
-    trial, case_input = row["trial"], row["trial"]["messages"][0]["text"]
+    trial = row["trial"]
 
     session = next(s for s in _get("/vessel/api/sessions") if s["name"] == meta["run_id"])
-    q = urllib.parse.urlencode({"session": session["id"], "tag": "sut", "q": case_input, "limit": 50})
+    tag = trial_tag(row["case_id"], row["rep"])
+    q = urllib.parse.urlencode({"session": session["id"], "tag": tag, "limit": 50})
     hits = _get(f"/vessel/api/requests?{q}")["rows"]  # newest first
     last = _get(f"/vessel/api/requests/{hits[0]['id']}")
     print(
@@ -105,6 +108,13 @@ def check(run_dir: Path, case_id: str | None) -> bool:
     req, resp = json.loads(last["requestBody"]["text"]), json.loads(last["responseBody"]["text"])
     parse = parse_anthropic if last["format"] == "anthropic-messages" else parse_openai
     rebuilt, recorded = parse(req, resp), comparable(trial["messages"])
+    # Tools run in the same turn as close_ticket (e.g. issue_refund + close_ticket together) were executed, but their
+    # results were never sent to the model, so no capture can contain them.
+    last = max(i for i, m in enumerate(recorded) if m["role"] == "assistant")
+    if unsent := recorded[last + 1 :]:
+        print(f"  note: {len(unsent)} tool result(s) after the final turn were never sent to the model: "
+              f"{[m['name'] for m in unsent]}")  # fmt: skip
+        recorded = recorded[: last + 1]
 
     ok = len(hits) == len(trial["calls"])
     print(f"  call count: captured {len(hits)}, recorded {len(trial['calls'])} -> {'OK' if ok else 'MISMATCH'}")

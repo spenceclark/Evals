@@ -544,6 +544,7 @@ The rates are from the claude-api skill's cached price table (2026-11-03), per m
 | Item | Assumption | Estimate |
 | ---- | ---------- | -------- |
 | SUT trial (Haiku 5.5) | ~4 calls, ~12k in, ~2k out incl. thinking | ~$0.002 |
+| **Measured (P2)**: SUT trial, Haiku 5.5 effort medium | 2.6 calls, 4.5k in, 0.47k out (60-case run: $0.041; Vessel stats match the harness) | **$0.0007** |
 | Full code-graded run: 60 cases × 10 trials (P6) | | ~$1–2 |
 | Opus 5.5 judge call | ~3k in, ~1.5k out; **one call per criterion, 3 criteria** | ~$0.04 per call, ~$0.12 per judged trial |
 | P4 judge iteration | 80 dev trials × 3 criteria × ~5 prompt versions | ~$50 |

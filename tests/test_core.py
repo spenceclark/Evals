@@ -61,7 +61,9 @@ def main() -> None:
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             report(run_dir)
-        assert "passed 1/1 graded | truncated/refused 1 | infra errors 3" in out.getvalue(), out.getvalue()
+        text = out.getvalue()
+        assert "trials 2 | truncated/refused 1 | infra errors 3" in text, text
+        assert "ALL GRADERS" in text and "1/1 (100%)" in text, text
     print("ok: harness error paths")
 
 
