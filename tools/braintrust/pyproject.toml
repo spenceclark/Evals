@@ -1,0 +1,16 @@
+[project]
+name = "spike-braintrust"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "autoevals>=0.4.1",
+    "braintrust>=0.50.0",
+    "litellm>=1.109.1",
+]
+
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"

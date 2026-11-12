@@ -1,0 +1,16 @@
+[project]
+name = "inspect-spike"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "anthropic>=2.8.0",
+    "inspect-ai>=0.3.289",
+]
+
+[tool.pyright]
+# own section so pyright stops walking up to the root config (whose venv lacks this tool)
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"

@@ -1,0 +1,16 @@
+[project]
+name = "deepeval-spike"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "anthropic>=2.8.0",
+    "deepeval>=4.3.4",
+]
+
+# Own pyright config so `uv run --with pyright pyright` here uses this venv, not the root one.
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"

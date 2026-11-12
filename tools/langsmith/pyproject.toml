@@ -1,0 +1,16 @@
+[project]
+name = "spike-langsmith"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "langchain-anthropic>=1.7.10",
+    "langsmith>=0.14.17",
+    "openevals>=0.2.2",
+]
+
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"

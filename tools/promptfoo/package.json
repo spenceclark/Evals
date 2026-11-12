@@ -1,0 +1,7 @@
+{
+  "name": "promptfoo-spike",
+  "private": true,
+  "devDependencies": {
+    "promptfoo": "0.125.1"
+  }
+}

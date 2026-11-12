@@ -1,0 +1,14 @@
+[project]
+name = "spike-langfuse"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "langfuse>=5.2.0",
+]
+
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"

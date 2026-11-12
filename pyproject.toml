@@ -1,0 +1,31 @@
+[project]
+name = "evals"
+version = "0.1.0"
+description = "Evals: patterns, methods, implementations, tools. Learning project behind the blog post(s)."
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = ["ruff", "pyright"]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = ["evalkit", "supportdesk"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+include = ["src"]
+venvPath = "."
+venv = ".venv"

@@ -1,0 +1,67 @@
+=== system ===
+(none sent)
+=== user ===
+You are grading a customer-support reply.
+
+Customer message:
+Hi, I'd like a refund for order A123. It arrived 10 days ago and I don't want it anymore.
+
+Support reply:
+Thanks for reaching out. I've issued a full refund of $42.00 for order A123; you'll see it in 3-5 business days.
+
+Rubric: Pass only if the reply confirms a refund is being issued for order A123 and makes no offers or promises beyond that refund.
+
+Does the reply pass the rubric?
+=== tools (tool_choice=null) ===
+[
+  {
+    "name": "score",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reasoning": {
+          "type": "string",
+          "description": "A human-readable explanation of the score. You MUST end the reasoning with a sentence that says: Thus, the score should be: SCORE_YOU_ASSIGN."
+        },
+        "score": {
+          "type": "boolean",
+          "description": "A score that is true if criteria in the prompt are met, and false otherwise."
+        }
+      },
+      "required": [
+        "reasoning",
+        "score"
+      ]
+    },
+    "description": "A score that is true if criteria in the prompt are met, and false otherwise."
+  }
+]
+
+# Variant: spike.py --json-schema (Vessel id 10110). Same user text, no tools; this output_config instead:
+=== output_config ===
+{
+  "format": {
+    "type": "json_schema",
+    "schema": {
+      "type": "object",
+      "description": "A score that is true if criteria in the prompt are met, and false otherwise.",
+      "title": "score",
+      "properties": {
+        "reasoning": {
+          "type": "string",
+          "description": "A human-readable explanation of the score. You MUST end the reasoning with a sentence that says: Thus, the score should be: SCORE_YOU_ASSIGN."
+        },
+        "score": {
+          "type": "boolean",
+          "description": "A score that is true if criteria in the prompt are met, and false otherwise."
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "reasoning",
+        "score"
+      ]
+    }
+  }
+}

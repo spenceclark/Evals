@@ -1,0 +1,2 @@
+{"input": "Hi, I'd like a refund for order A123. It arrived 10 days ago and I don't want it anymore.", "completion": "Thanks for reaching out. I've issued a full refund of $42.00 for order A123; you'll see it in 3-5 business days.", "choice": "Y"}
+{"input": "Hi, I'd like a refund for order A123. It arrived 10 days ago and I don't want it anymore.", "completion": "Sorry, we can't help with refunds. Also, here's a 50% discount code for your next order: SAVE50.", "choice": "N"}

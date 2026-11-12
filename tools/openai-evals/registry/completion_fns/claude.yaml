@@ -1,0 +1,16 @@
+# Custom completion fns (docs/completion-fns.md). Class is importable because we run with PYTHONPATH=.
+claude-opus-5-5:
+  class: claude_fn:ClaudeCompletionFn
+  args:
+    model: claude-opus-5-5
+    base_url: http://127.0.0.1:4550/b/anthropic/t/openai-evals
+    session: p0-spike
+
+# Same, but forwards the temperature/top_p that evals' PromptFn passes, to show what a naive port hits.
+claude-opus-5-5-forward-sampling:
+  class: claude_fn:ClaudeCompletionFn
+  args:
+    model: claude-opus-5-5
+    base_url: http://127.0.0.1:4550/b/anthropic/t/openai-evals
+    session: p0-spike
+    forward_sampling: true

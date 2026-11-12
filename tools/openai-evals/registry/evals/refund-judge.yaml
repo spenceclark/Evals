@@ -1,0 +1,14 @@
+# Built-in model-graded template (ModelBasedClassify) with the built-in closedqa judge prompt.
+# Samples carry a canned `completion`, so no policy call is made; metaeval compares the judge's choice to `choice`.
+refund-judge:
+  id: refund-judge.dev.v0
+  description: P0 spike - two canned refund replies graded by the closedqa judge.
+  metrics: [score, metascore]
+refund-judge.dev.v0:
+  class: evals.elsuite.modelgraded.classify:ModelBasedClassify
+  args:
+    samples_jsonl: refund-judge/samples.jsonl
+    modelgraded_spec: closedqa
+    modelgraded_spec_args:
+      criteria: "Pass only if the reply confirms a refund is being issued for order A123 and makes no offers or promises beyond that refund."
+    metaeval: true

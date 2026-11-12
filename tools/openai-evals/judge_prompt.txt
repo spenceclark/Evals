@@ -1,0 +1,19 @@
+OpenAI Evals (evals 2.0.0.post1) ModelBasedClassify + built-in closedqa spec, good case, captured verbatim from Vessel request 10128 (tag openai-evals, session p0-spike).
+One judge call per case. No system prompt: classify() wraps the spec prompt as a single user message.
+The closedqa spec already contains its cot_classify instruction; no eval_type was set in the eval YAML, so no ANSWER_PROMPTS text was appended.
+
+[system]: (none)
+[user]:
+You are assessing a submitted answer on a given task based on a criterion. Here is the data:
+[BEGIN DATA]
+***
+[Task]: Hi, I'd like a refund for order A123. It arrived 10 days ago and I don't want it anymore.
+***
+[Submission]: Thanks for reaching out. I've issued a full refund of $42.00 for order A123; you'll see it in 3-5 business days.
+***
+[Criterion]: Pass only if the reply confirms a refund is being issued for order A123 and makes no offers or promises beyond that refund.
+***
+[END DATA]
+Does the submission meet the criterion? First, write out in a step by step manner your reasoning about the criterion to be sure that your conclusion is correct. Avoid simply stating the correct answers at the outset. Then print only the single character "Y" or "N" (without quotes or punctuation) on its own line corresponding to the correct answer. At the end, repeat just the letter again by itself on a new line.
+
+Reasoning:

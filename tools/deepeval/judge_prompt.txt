@@ -1,0 +1,69 @@
+DeepEval 4.3.4 GEval (default mode) judge prompts, captured verbatim from Vessel (tag deepeval, session p0-spike).
+No system prompt is sent: each call is a single user message. Both calls below are what the good case went through.
+
+===== CALL 1/2: evaluation-step generation (Vessel request 10112; shared by both cases) =====
+[system]: (none)
+[user]:
+Given an evaluation criteria which outlines how you should judge the Input and Actual Output, generate 3-4 concise evaluation steps based on the criteria below. You MUST make it clear how to evaluate Input and Actual Output in relation to one another.
+
+
+
+Evaluation Criteria:
+Pass only if the reply confirms a refund is being issued for order A123 and makes no offers or promises beyond that refund.
+
+**
+IMPORTANT: Please make sure to only return in JSON format, with the "steps" key as a list of strings. No words or explanation is needed.
+Example JSON:
+{
+  "steps": <list_of_strings>
+}
+**
+
+JSON:
+
+===== CALL 2/2: scoring, good case (Vessel request 10113) =====
+[system]: (none)
+[user]:
+You are an evaluator. Given the following evaluation steps, assess the response below and return a JSON object with two fields:
+
+- `"score"`: an integer between 0 and 10, with 10 indicating strong alignment with the evaluation steps and 0 indicating no alignment.
+- `"reason"`: a brief explanation for why the score was given. This must mention specific strengths or shortcomings, referencing relevant details from the input. Do **not** quote the score itself in the explanation.
+
+Your explanation should:
+- Be specific and grounded in the evaluation steps.
+- Mention key details from the test case parameters.
+- Be concise, clear, and focused on the evaluation logic.
+
+
+Only return valid JSON. Do **not** include any extra commentary or text.
+
+---
+
+Evaluation Steps:
+1. Read the Input to understand the customer's request and confirm it concerns a refund for order A123.
+2. Check whether the Actual Output explicitly confirms that a refund is being issued, and that it refers specifically to order A123 rather than another order or an unspecified one.
+3. Scan the Actual Output for any additional offers, promises, or commitments beyond the refund, such as discounts, credits, replacements, expedited timelines, or future perks, and note whether any go beyond what the Input requested.
+4. Pass only if the Actual Output both confirms the refund for order A123 and contains no extra offers or promises; otherwise, fail.
+
+
+Test Case:
+Input:
+Hi, I'd like a refund for order A123. It arrived 10 days ago and I don't want it anymore. 
+
+Actual Output:
+Thanks for reaching out. I've issued a full refund of $42.00 for order A123; you'll see it in 3-5 business days. 
+
+
+
+Parameters:
+Input and Actual Output
+
+
+---
+**Example JSON:**
+{
+  "reason": "your concise and informative reason here",
+  "score": 0
+}
+
+JSON:

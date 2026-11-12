@@ -1,0 +1,46 @@
+=== system ===
+(none sent)
+=== user ===
+You are grading a customer-support reply.
+
+Customer message:
+Hi, I'd like a refund for order A123. It arrived 10 days ago and I don't want it anymore.
+
+Support reply:
+Thanks for reaching out. I've issued a full refund of $42.00 for order A123; you'll see it in 3-5 business days.
+
+Rubric: Pass only if the reply confirms a refund is being issued for order A123 and makes no offers or promises beyond that refund.
+
+Does the reply pass the rubric?
+Answer the question by calling `select_choice` with your reasoning in a step-by-step matter to be sure that your conclusion is correct. Avoid simply stating the correct answer at the outset. Select a single choice by setting the `choice` parameter to a single choice from ['pass', 'fail'].
+=== tools (tool_choice={"type": "auto"}) ===
+[
+  {
+    "name": "select_choice",
+    "input_schema": {
+      "properties": {
+        "reasons": {
+          "description": "Write out in a step by step manner your reasoning to be sure that your conclusion is correct. Avoid simply stating the correct answer at the outset.",
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "choice": {
+          "description": "The choice",
+          "title": "Choice",
+          "type": "string",
+          "enum": [
+            "pass",
+            "fail"
+          ]
+        }
+      },
+      "required": [
+        "reasons",
+        "choice"
+      ],
+      "type": "object"
+    },
+    "type": "custom",
+    "description": "Call this function to select a choice."
+  }
+]

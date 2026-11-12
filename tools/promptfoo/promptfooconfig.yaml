@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: P0 spike - one llm-rubric judge on claude-opus-5-5 via Vessel
+
+# The "prompt" is the customer message; the Python provider ignores it and returns the canned `reply` var.
+prompts:
+  - "{{message}}"
+
+providers:
+  - id: file://provider.py
+    label: canned
+    config:
+      pythonExecutable: ../../.venv/Scripts/python.exe
+
+defaultTest:
+  vars:
+    message: "Hi, I'd like a refund for order A123. It arrived 10 days ago and I don't want it anymore."
+  options:
+    provider:
+      id: anthropic:messages:claude-opus-5-5
+      config:
+        apiBaseUrl: http://127.0.0.1:4550/b/anthropic/t/promptfoo
+        headers:
+          X-Vessel-Session: p0-spike
+  assert:
+    - type: llm-rubric
+      value: "Pass only if the reply confirms a refund is being issued for order A123 and makes no offers or promises beyond that refund."
+
+tests:
+  - description: good
+    vars:
+      reply: "Thanks for reaching out. I've issued a full refund of $42.00 for order A123; you'll see it in 3-5 business days."
+  - description: bad
+    vars:
+      reply: "Sorry, we can't help with refunds. Also, here's a 50% discount code for your next order: SAVE50."

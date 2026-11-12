@@ -1,0 +1,20 @@
+# Vessel request 10086 (promptfoo 0.125.1 llm-rubric, good case). Verbatim system + user text.
+=== SYSTEM ===
+You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}
+
+Examples:
+
+<Output>Hello world</Output>
+<Rubric>Content contains a greeting</Rubric>
+{"reason": "the content contains the word 'Hello'", "pass": true, "score": 1.0}
+
+<Output>Avast ye swabs, repel the invaders!</Output>
+<Rubric>Does not speak like a pirate</Rubric>
+{"reason": "'avast ye' is a common pirate term", "pass": false, "score": 0.0}
+=== USER ===
+<Output>
+Thanks for reaching out. I've issued a full refund of $42.00 for order A123; you'll see it in 3-5 business days.
+</Output>
+<Rubric>
+Pass only if the reply confirms a refund is being issued for order A123 and makes no offers or promises beyond that refund.
+</Rubric>
