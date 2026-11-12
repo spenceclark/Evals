@@ -223,12 +223,12 @@ The first end-to-end slice comes first. Sizes: **S** ≈ an evening, **M** ≈ a
 **Build:** a SUT with 2 tools (`get_order`, `issue_refund`) + `close_ticket`, 10 cases, the harness at k=1, one code grader
 (action exact match), and a report that prints a table. Run the oracle and null baselines.
 
-**Outputs:** O1, O2 (first cut), O5.
+**Outputs:** O1, O2 (first cut), O5, done: [p1-anatomy.md](p1-anatomy.md). Findings: [findings.md](findings.md).
 **Also: capture round-trip check.** This de-risks P7. Fetch one trial's final request from the Vessel REST API and parse its raw
 wire JSON back into the same trajectory the harness recorded: customer message, tool calls and results, and the `close_ticket`
 args. Do it for both adapters (Anthropic Messages format and OpenAI chat format). If it doesn't round-trip, redesign P7 now.
 
-**Done when:** `uv run python -m evalkit run --cases cases/slice.jsonl` produces a run directory and a report. The oracle passes,
+**Done when:** `uv run python -m evalkit run --cases cases/slice.jsonl --task supportdesk.task:haiku` produces a run directory and a report. The oracle passes,
 the null fails, the capture round-trip matches for both adapters, and you have read every transcript.
 
 ### P2: Full SUT, case set and code graders (M)

@@ -3,7 +3,10 @@ name = "evals"
 version = "0.1.0"
 description = "Evals: patterns, methods, implementations, tools. Learning project behind the blog post(s)."
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "anthropic>=2.8.0",
+    "openai>=3.49.0",
+]
 
 [dependency-groups]
 dev = ["ruff", "pyright"]
@@ -26,6 +29,6 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 pythonVersion = "3.14"
 typeCheckingMode = "strict"
 reportMissingTypeStubs = false
-include = ["src"]
+include = ["src", "tests"]
 venvPath = "."
 venv = ".venv"

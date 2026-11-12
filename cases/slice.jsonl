@@ -1,0 +1,10 @@
+{"id": "S01", "input": "Hi, the headphones from order A101 stopped working after a week. I'd like a refund please.", "expected": {"action": "refunded", "order_id": "A101", "amount": 59.0}, "tags": ["eligible", "full"]}
+{"id": "S02", "input": "The mug in order A102 arrived chipped. Can I get a refund for just the mug? The kettle is fine.", "expected": {"action": "refunded", "order_id": "A102", "amount": 12.0}, "tags": ["eligible", "partial"]}
+{"id": "S03", "input": "I changed my mind about the shoes in order A103. Could I get my money back?", "expected": {"action": "refunded", "order_id": "A103", "amount": 89.99}, "tags": ["eligible", "full"]}
+{"id": "S04", "input": "I'd like to return the rain jacket from order A104 for a refund, it's too small.", "expected": {"action": "denied", "order_id": "A104", "amount": null}, "tags": ["window"]}
+{"id": "S05", "input": "Can I get a refund on order A105? The daypack isn't really what I wanted.", "expected": {"action": "denied", "order_id": "A105", "amount": null}, "tags": ["window", "boundary"]}
+{"id": "S06", "input": "I bought the ebook in order A106 two days ago and it's not what I expected. Refund please.", "expected": {"action": "denied", "order_id": "A106", "amount": null}, "tags": ["digital"]}
+{"id": "S07", "input": "The desk lamp from order A107 flickers. I want a refund.", "expected": {"action": "denied", "order_id": "A107", "amount": null}, "tags": ["already_refunded"]}
+{"id": "S08", "input": "Where is my order A108? I ordered it last week.", "expected": {"action": "answered", "order_id": "A108", "amount": null}, "tags": ["info"]}
+{"id": "S09", "input": "Just checking: has order A109 been delivered yet?", "expected": {"action": "answered", "order_id": "A109", "amount": null}, "tags": ["info"]}
+{"id": "S10", "input": "Hi, I bought a blender from you a few weeks ago and it's already broken. Can I get my money back?", "expected": {"action": "needs_info", "order_id": null, "amount": null}, "tags": ["missing_id"]}
