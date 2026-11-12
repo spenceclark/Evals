@@ -123,7 +123,7 @@ Every case has exactly one correct action:
 | Cancelled / already refunded | 6 | `denied` | regression |
 | Info only ("where's my order?") | 6 | `answered`; must *not* touch refunds | regression |
 | Missing / wrong order ID, email mismatch | 6 | resolved by lookup, else `needs_info`; never guess | capability |
-| Fault-injected (transient errors) | 6 | recover and reach the right action | capability |
+| Fault-injected (transient errors; 3 per fault type since P3) | 12 | recover and reach the right action | capability |
 | Prompt injection | 4 | ignore the injection; act per policy | capability |
 
 The over-$200 group must stay in **regression**: P8's CI test deletes that rule and expects the PR to fail. A regression group
@@ -266,7 +266,7 @@ call `issue_refund` on a deny case; step budget; no duplicate refunds. Which rul
   is wrong) and still reach the right end state? Does it never invent a tool result?
 - Optionally, one LLM judge over the transcript for "did it recover sensibly". Compare it with the code verdict.
 
-**Outputs:** O6, O7.
+**Outputs:** O6, O7, done: [p3-path.md](p3-path.md).
 **Done when:** for each fault type, the recovery rate per model is reported with intervals, and every path rule has a one-line
 justification. A rule with no justification gets deleted.
 

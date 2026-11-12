@@ -366,3 +366,120 @@ Two things came up that no output-or-outcome grader catches:
   *path*, not the result, and it's what the next step (grading the trajectory) is for.
 - **A perfect score is a warning, not a win.** Haiku now scores 60/60 on one run per case. That can't tell Haiku apart from a
   slightly better or slightly worse version of itself. Repeated trials, and harder cases, are what restore the signal.
+
+---
+
+## 5. Grading the path: how the agent got there
+
+Section 4's graders look at two things: what the agent *said* (its closing decision) and what it *did* (the refunds in the
+store afterwards). This step adds a third: *how* it got there, meaning the sequence of tool calls. Every trial already keeps
+its full transcript, so none of this needed a change to the agent. It's all new graders over data we already had.
+
+### Path rules, and the rule about rules
+
+A path rule is a check over the tool calls: "it looked up the order before refunding it", "it never repeated a refund that
+had already succeeded". These are easy to write, and that's the danger. It's just as easy to write a rule that encodes *one*
+correct route and punishes every other.
+
+So each rule had to carry a one-line justification, a real requirement it protects. A rule without one gets deleted:
+
+| Rule | Why it exists |
+| --- | --- |
+| Look up the order before acting on it | Delivery date, item type and email only come from the order lookup; acting without them is guessing |
+| No refund *attempt* on a case that should be denied | The shop's own checks might stop the money, but the attempt shows a wrong decision |
+| See the result before closing | Telling the customer "refunded" before seeing whether the refund worked can be false |
+| Refund amounts come from the order | A refund should be the price of items on the order, not a number the model made up |
+| Don't repeat a side effect that succeeded | Retrying is for failures; repeating a success refunds twice |
+| At most 8 model calls | More than that means it's looping (the longest correct trial needed 6) |
+
+To show the failure mode, I also built one rule that *sounds* right and isn't: "it must check the customer's email with the
+`find_customer` tool". The order lookup already returns the email, so there's more than one valid route. That rule failed
+**75 trials that were otherwise completely correct.** Plausible rules that encode a route instead of a requirement are how
+path grading goes wrong.
+
+### Faults, and what "recovered" means
+
+Twelve cases make a tool fail once on purpose, with a temporary "service unavailable" error: three each for the order
+lookup, the customer lookup, the refund and the escalation. Each case ran 5 times per model.
+
+"Did it recover?" turned out to need a precise definition before code could decide it. The agent has to:
+1. **see the error** (not close the ticket before the error comes back),
+2. **retry or switch** to another way of looking things up,
+3. **reach the right end state,**
+4. **close the ticket and tell the customer the truth.**
+
+Each way of falling short gets its own label (`never_saw_error`, `gave_up`, `retried_no_close` and so on), because
+"failed to recover" covers several quite different problems.
+
+### The finding: an agent that's right, and still tells the customer something false
+
+In the previous step one path rule had flagged something odd. In 3 trials, Haiku had issued a refund *and* closed the
+ticket in the same step, telling the customer "refunded" before it had seen the refund's result. Every refund had worked,
+so every grader passed.
+
+With injected faults, the flagged behaviour turned into a real failure. Here's one trial:
+
+```
+CUSTOMER  I want to return the Bike lights from order A2301 for a refund, it is the wrong size.
+
+step 1    look up order A2301            -> delivered 9 days ago, $29.99, email matches
+step 2    issue refund $29.99            ┐ sent together: the agent closes before
+          close ticket: "We have         │ it can see whether the refund worked
+            refunded $29.99"             ┘
+          refund -> ERROR 503 "Nothing was changed. Try again."   (never seen by the agent)
+
+store     no refund was made
+customer  was told it was
+```
+
+The decision is right, the order is right and the amount is right, so every grader that only reads the closing message
+passes. Only the graders that check the store, compare the claim with what happened, or look at the path catch it. Haiku
+did this in **5 of its 60 fault trials.**
+
+Recovery rates over the 12 fault cases came out as **Haiku 92%** (interval roughly 78–100%) and **Qwen 97%** (90–100%).
+The intervals overlap, so "Qwen recovers better" isn't established. What *is* clear is the mechanism. All 5 of Haiku's
+failures were "closed before seeing the error". Qwen's 2 were "gave up and never closed". The two models fail in different
+ways, and only the per-category labels show it.
+
+### Fixing it: change the agent, not the eval
+
+The failure had two causes. The model closed optimistically, and the agent loop honoured a close sent in the middle of a
+step. I changed the loop: a close sent alongside other tool calls is now refused. The other calls still run, the agent
+gets their results plus a note saying "close on its own, after you've seen the results", and it has to close again.
+
+| Haiku 5.5 | Old loop | Fixed loop |
+| --- | --- | --- |
+| Recovered from injected faults | 55/60 (92%) | **60/60 (100%)** |
+| All graders incl. path rules, full suite | 57/60 (3 closed before seeing the result) | **66/66** |
+| Closes the loop had to refuse | n/a | 8 of 60 fault trials |
+| Cost per trial | | +8% |
+
+For Qwen, nothing changed. It never closed mid-step, so the loop never had to refuse it.
+
+Two notes on this. First, it's a deliberate change to the system under test, and it's recorded with every run so old and
+new numbers are never mixed up. Second, the fixed loop's 100% hides the most instructive failure in the whole project. If
+I'd only shown the after-numbers, there'd be nothing to learn from them. **Keep the before-numbers.**
+
+And some failures no loop can prevent. In one trial Qwen *saw* the escalation fail, didn't retry, and told the customer
+"escalated" anyway. Only the grader comparing what it said with what happened catches that.
+
+### Does an LLM judge agree?
+
+As a preview of model grading, I gave Claude Opus 5.5 the same definition of "recovered", category by category, and asked
+it to grade all 120 fault trials. **It agreed with the code on every one,** for about $1.
+
+That sounds like a strong result, but it isn't one yet. Only 3 of the 6 categories ever occurred, and 113 of the 120
+trials were plain "recovered". This is agreement on an easy, lopsided set. It's also a waste of a judge. When code can
+decide the question, code is free, instant and gives the same answer every time. Judges are for what code can't decide:
+whether a reply is accurate, polite and actually answers the customer. That's the next section.
+
+### Smaller lessons from this step
+
+- **One run per case misleads, in both directions.** A Qwen case that failed in the previous step passed 5 out of 5 here,
+  and a Haiku case that had passed failed 3 out of 5.
+- **Most path rules never fired.** Across 240 trials, several rules caught nothing; their tests prove they *can* fail.
+  Whether to keep a rule that has never fired comes down to its justification: keep it if it guards a real harm, and treat
+  it as a tripwire, not a measurement.
+- **A path rule can be right while failing a correct trial.** Qwen once refunded using only the order *list*, which doesn't
+  show whether an item is digital or has been downloaded. The refund was correct, but it never checked the rule that could
+  have forbidden it. Right answer, unchecked policy.

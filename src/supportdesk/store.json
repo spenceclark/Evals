@@ -150,6 +150,16 @@
    "id": "C30",
    "name": "Ezra",
    "email": "ezra@example.com"
+  },
+  {
+   "id": "C31",
+   "name": "Juno",
+   "email": "juno@example.com"
+  },
+  {
+   "id": "C32",
+   "name": "Pax",
+   "email": "pax@example.com"
   }
  ],
  "orders": [
@@ -1719,6 +1729,114 @@
     }
    ],
    "total": 389.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2335",
+   "customer_id": "C06",
+   "email": "sam@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-04",
+   "delivered_at": "2026-10-09",
+   "items": [
+    {
+     "sku": "RJ-45",
+     "name": "Rain jacket",
+     "price": 120.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 120.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2337",
+   "customer_id": "C07",
+   "email": "olu@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-06",
+   "delivered_at": "2026-10-08",
+   "items": [
+    {
+     "sku": "BL-61",
+     "name": "Bike lights",
+     "price": 29.99,
+     "kind": "physical"
+    }
+   ],
+   "total": 29.99,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2338",
+   "customer_id": "C08",
+   "email": "kim@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-09",
+   "delivered_at": "2026-10-12",
+   "items": [
+    {
+     "sku": "EM-39",
+     "name": "Espresso machine",
+     "price": 329.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 329.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2344",
+   "customer_id": "C09",
+   "email": "ana@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-22",
+   "delivered_at": "2026-10-26",
+   "items": [
+    {
+     "sku": "EM-33",
+     "name": "Espresso machine",
+     "price": 329.0,
+     "kind": "physical"
+    }
+   ],
+   "total": 329.0,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2348",
+   "customer_id": "C31",
+   "email": "juno@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-21",
+   "delivered_at": "2026-10-25",
+   "items": [
+    {
+     "sku": "BL-75",
+     "name": "Bike lights",
+     "price": 29.99,
+     "kind": "physical"
+    }
+   ],
+   "total": 29.99,
+   "refunded_amount": 0.0
+  },
+  {
+   "id": "A2355",
+   "customer_id": "C32",
+   "email": "pax@example.com",
+   "status": "delivered",
+   "ordered_at": "2026-10-10",
+   "delivered_at": "2026-10-12",
+   "items": [
+    {
+     "sku": "YM-93",
+     "name": "Yoga mat",
+     "price": 32.5,
+     "kind": "physical"
+    }
+   ],
+   "total": 32.5,
    "refunded_amount": 0.0
   }
  ]

@@ -1,6 +1,6 @@
 """Capture round-trip check: rebuild a trial's transcript from Vessel's capture of its last LLM call, compare.
 
-    uv run python -m supportdesk.roundtrip runs/<run_id> [case_id]
+    uv run python -m supportdesk.roundtrip runs/<run_id> [case_id [rep]]
 
 The last call's request holds the conversation so far; its response holds the closing tool call.
 Needs a run made with VESSEL_URL set (the Vessel session name is the run id).
@@ -89,10 +89,10 @@ def comparable(messages: list[JSON]) -> list[JSON]:
     return [{k: v for k, v in m.items() if k != "ms"} for m in messages]
 
 
-def check(run_dir: Path, case_id: str | None) -> bool:
+def check(run_dir: Path, case_id: str | None, rep: int = 0) -> bool:
     meta = json.loads((run_dir / "meta.json").read_text(encoding="utf-8"))
     rows = [json.loads(line) for line in (run_dir / "results.jsonl").read_text(encoding="utf-8").splitlines()]
-    row = next(r for r in rows if case_id in (None, r["case_id"]))
+    row = next(r for r in rows if case_id in (None, r["case_id"]) and r["rep"] == rep)
     trial = row["trial"]
 
     session = next(s for s in _get("/vessel/api/sessions") if s["name"] == meta["run_id"])
@@ -137,4 +137,5 @@ def check(run_dir: Path, case_id: str | None) -> bool:
 if __name__ == "__main__":
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8")  # pyright: ignore[reportUnknownMemberType]
-    sys.exit(0 if check(Path(sys.argv[1]), sys.argv[2] if len(sys.argv) > 2 else None) else 1)
+    args = sys.argv[1:]
+    sys.exit(0 if check(Path(args[0]), args[1] if len(args) > 1 else None, int(args[2]) if len(args) > 2 else 0) else 1)

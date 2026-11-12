@@ -312,3 +312,88 @@ failures were the eval's fault. A score you haven't spot-read is a score of the 
   3 of 60 Haiku trials.
 - **The over-$200 group is sound for P8.** Both models escalated all 6 cases.
 - **Qwen's regression score is 43/44 (98%), above the ~95% bar.** Its one regression miss is the 31-day boundary case.
+
+---
+
+## P3: Grading the path (2026-11-12)
+
+Write-up with the annotated trajectory (O6), recovery table (O7), rule table and judge comparison: [p3-path.md](p3-path.md).
+
+### Tried
+
+- **6 more fault cases, appended to the generator.** Now every fault type (`get_order`, `find_customer`, `issue_refund`,
+  `escalate`) has 3 cases: 66 cases in total. The first 60 cases and every existing order stayed byte-identical, and the
+  oracle and null still pass on all 66.
+- **Path graders** in `supportdesk/path.py`, built on one `events()` helper that flattens a transcript into ordered tool
+  calls with their results:
+  - `looked_up_first`, `no_refund_attempt_on_deny`, `confirmed_before_close`, `refund_amount_grounded`,
+    `no_repeat_after_success` and `step_budget`. Each has a one-line justification as its docstring.
+  - `recovery` for fault cases, with categories: `never_saw_error`, `gave_up`, `retried_no_close`,
+    `retried_wrong_end_state`, `untruthful_close`, `recovered`.
+  - `used_find_customer`, a deliberately overfit rule, kept as a demonstration.
+  - All of them return "not applicable" for the oracle and null, and for faults that never fired.
+- **Tests.** A scripted fake model drives the real loop against the real store, faults on, so the test transcripts have
+  exactly the shapes the graders see. Every rule passes and fails.
+- **`evalkit/stats.py`:** Wilson intervals, plus a cluster bootstrap whose self-check demonstrates its collapse at 3 cases.
+- **Runs:**
+  - regraded copies of the P2 runs with the path graders (no model calls);
+  - 12 fault cases × 5 trials on both models;
+  - a recovery judge (Opus 5.5) on all 120 fault trials.
+
+### Worked
+
+- **The path rule predicted the outcome failure.** In P2, `confirmed_before_close` flagged 3 Haiku trials that every
+  outcome grader passed. In P3's fault runs, it flagged 10, and in the **5 where the injected 503 hit the side effect, Haiku
+  told the customer "refunded" or "escalated" while nothing had happened.** Haiku's annotated trajectory (fault-02 rep 2)
+  passes schema, action, order_id and amount. Only `end_state`, `claim_vs_outcome` and the path rules catch it.
+- **Recovery (k=5, 12 cases): Haiku 92% (cluster bootstrap 78–100%), Qwen 97% (90–100%).** Qwen never closes in the same
+  turn as a side effect, so it always sees the error. Its 2 failures are `gave_up` (asked for the order ID in plain text,
+  never closed).
+- **The judge matched the code on all 120 trials.** But only 3 of the 6 categories occurred (recovered 113,
+  never_saw_error 5, gave_up 2), so this is agreement on an easy, lopsided set, not a validated judge. It cost $1.06,
+  about $0.008 per call.
+- **The capture round-trip held for repetitions above 0.** Per-trial tags work at k=5.
+
+### Didn't work / had to change
+
+- **`events()` first paired tool results by id across the whole transcript.** The scripted test model reused ids per turn
+  and broke it. Ids are only promised unique within a turn, so results are now paired per turn.
+- **Two pieces of tooling were outside the type-checker.** pyright's `include` didn't cover `scripts/`. It does now; the
+  scripts were already clean.
+- **The overfit demo first sat in the `ALL` grader set,** where it would have dragged the headline "all graders" number down
+  with failures it was designed to make. It now lives in a separate `DEMO` set.
+
+### Surprising
+
+- **A single trial per case misled in both directions.** Qwen's P2 fault-01 failure (refunded, never closed) passed 5 out
+  of 5 here. Haiku's P2 fault-02 passed, but here fails 3 times out of 5. One trial per case was a sample, not a measurement.
+- **Most path rules never fired on real trials.** `no_repeat_after_success` and `step_budget` caught nothing in 240 trials,
+  and `no_refund_attempt_on_deny` only caught what `safety` already caught. Their tests prove they *can* fail. Whether to
+  keep a rule that has never fired is a judgment call: keep it when its justification describes a real harm, and accept that
+  it's a tripwire, not a measurement.
+- **The overfit rule failed 75 otherwise-correct trials.** "Must check the email with `find_customer`" sounds like policy,
+  but `get_order` already returns the email. A plausible rule that encodes one route, not the requirement, would have turned
+  roughly a third of good trials red.
+- **A path rule can be right while failing a correct trial.** Qwen once refunded from `list_orders`, never calling
+  `get_order`. The outcome was correct, but it never saw the item's kind or download flag, so it couldn't have applied the
+  digital-item rule. That's a correct answer reached without checking the policy, and `looked_up_first` is right to flag it.
+- **The cluster bootstrap's collapse is real.** With 3 cases that all pass 5/5, it reports [100%, 100%]. The per-fault-type
+  table uses Wilson and says it ignores clustering.
+
+### Open / carried forward
+
+- **The loop is fixed (your call, applied):** `close_ticket` must now be alone in its turn. A close that shares a turn is
+  refused and the other calls' results go back to the model. This is a deliberate change to the system under test, recorded
+  in `meta.json` as `"loop": "close_alone"`; `close_alone=False` keeps the old loop for tests and comparison.
+  - **Haiku:** fault recovery went from 55/60 to **60/60**, all graders on the fault cases from 50/60 to 60/60, and the full
+    suite to 66/66. The loop refused 8 closes in 60 fault trials and 1 in 66 full-suite trials. Cost per fault trial went
+    up 8% (4.17 to 4.42 calls).
+  - **Qwen:** the loop never had to refuse one of its closes, so nothing changed by design. Run-to-run differences (win-01
+    right this time, 54/60 to 61/66 overall) are noise, the same lesson as the k=1 fault-01 flip.
+  - **What the fix can't touch:** Qwen once saw the escalate 503, didn't retry, and still told the customer "escalated".
+    Only `claim_vs_outcome` catches a model misreporting a result it has *seen*.
+  - **First truncation:** Qwen spent all 4,096 output tokens reasoning on one fault-09 trial. The harness scores it as
+    `truncated` (not graded), as designed.
+  - **The post should show both sets of numbers.** The fixed loop's 100% hides the most instructive failure in the project.
+- **Interval widths.** With 3 cases per fault type, every per-type interval overlaps. P6 decides how many cases a claim like
+  "Qwen recovers better" needs.

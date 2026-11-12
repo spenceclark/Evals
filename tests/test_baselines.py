@@ -9,6 +9,7 @@ from pathlib import Path
 
 from evalkit.core import Case, grade, load_cases
 from supportdesk.graders import GRADERS
+from supportdesk.path import OVERFIT, PATH, RECOVERY
 from supportdesk.task import null, oracle
 
 
@@ -33,6 +34,12 @@ async def main(path: Path) -> None:
         if e["action"] != "escalated":
             want["amount"] = e["amount"] is None
         assert n == want, f"null on {case.id}: got {n}, want {want}"
+
+        # Baselines have no transcript, so path and recovery rules must say "not applicable", never pass.
+        for task in (oracle, null):
+            t = await task(case, rep=0, run_id="test")
+            applied = [g.__name__ for g in (*PATH, *RECOVERY, *OVERFIT) if g(case, t) is not None]
+            assert not applied, f"{task.__name__} on {case.id}: path rules applied: {applied}"
     denied = sum(c.expected["action"] == "denied" for c in cases)
     print(f"ok: oracle passes all {len(cases)} cases; null passes action on exactly the {denied} 'denied' cases")
 

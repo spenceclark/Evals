@@ -48,6 +48,7 @@ class AgentTask:
             "effort": effort,
             "max_tokens": max_tokens,
             "strict_tools": adapter == "anthropic",
+            "loop": "close_alone",  # since P3: a close sharing its turn with other calls is refused
             "context_window": OLLAMA_CONTEXT if adapter == "openai" else None,
             "prompt_sha": PROMPT_SHA,
             "vessel": bool(VESSEL),

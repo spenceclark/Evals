@@ -158,7 +158,17 @@ class AgentResult:
     stop_reason: str = ""
 
 
-async def run_agent(llm: LLM, user: str, store: Store, max_steps: int = 12) -> AgentResult:
+# A close_ticket sent in the same turn as other tool calls is refused: the other calls run, their results (and this
+# refusal) go back to the model, and it must close again on its own. Without this, an agent can tell the customer
+# "refunded" before it has seen whether issue_refund worked (P3: 5 of 60 Haiku fault trials did exactly that).
+CLOSE_ALONE = (
+    "close_ticket must be the only tool call in its turn, after you have seen the results of your other calls. "
+    "The ticket is still open; check the results above, then call close_ticket again."
+)
+
+
+async def run_agent(llm: LLM, user: str, store: Store, max_steps: int = 12, close_alone: bool = True) -> AgentResult:
+    """close_alone=False restores the P1-P3 loop, which honoured a close mid-turn (kept for comparison and tests)."""
     res = AgentResult(messages=[{"role": "user", "text": user}])
     for _ in range(max_steps):
         step = await llm.step()
@@ -178,14 +188,17 @@ async def run_agent(llm: LLM, user: str, store: Store, max_steps: int = 12) -> A
             res.stop_reason = "end_without_close"  # a model failure: scored, not an infra error
             return res
         results: list[tuple[str, str, bool]] = []
+        alone = len(step.tool_calls) == 1
         for c in step.tool_calls:
-            if c.name == "close_ticket" and c.args is not None:
+            if c.name == "close_ticket" and c.args is not None and (alone or not close_alone):
                 res.output, res.stop_reason = c.args, "close_ticket"
                 return res
             t0 = time.perf_counter()
             try:
                 if c.args is None:
                     raise ToolError("arguments were not valid JSON")
+                if c.name == "close_ticket":
+                    raise ToolError(CLOSE_ALONE)
                 content, error = store.execute(c.name, c.args), False
             except ToolError as e:
                 content, error = json.dumps({"error": str(e)}), True
