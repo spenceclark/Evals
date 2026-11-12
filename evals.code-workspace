@@ -1,0 +1,17 @@
+{
+  // Each tool has its own .venv; Pylance uses one interpreter per workspace folder,
+  // so every tool project is its own folder. Open this file, not the repo folder.
+  "folders": [
+    { "path": ".", "name": "evals (root)" },
+    { "path": "tools/braintrust" },
+    { "path": "tools/deepeval" },
+    { "path": "tools/inspect" },
+    { "path": "tools/langfuse" },
+    { "path": "tools/langsmith" },
+    { "path": "tools/openai-evals" },
+    { "path": "tools/pydantic-evals" }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe"
+  }
+}
