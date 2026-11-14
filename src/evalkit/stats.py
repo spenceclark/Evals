@@ -32,7 +32,18 @@ def cluster_bootstrap(cases: Sequence[Sequence[bool]], reps: int = 4000, seed: i
     return rate(groups), stats[int(0.025 * reps)], stats[int(0.975 * reps) - 1]
 
 
+def kappa(a: Sequence[bool], b: Sequence[bool]) -> float:
+    """Cohen's kappa for two raters' pass/fail verdicts: agreement corrected for what base rates give by chance."""
+    n = len(a)
+    observed = sum(x == y for x, y in zip(a, b, strict=True)) / n
+    pa, pb = sum(a) / n, sum(b) / n
+    chance = pa * pb + (1 - pa) * (1 - pb)
+    return 1.0 if chance == 1 else (observed - chance) / (1 - chance)
+
+
 if __name__ == "__main__":
+    assert kappa([True, False] * 5, [True, False] * 5) == 1.0
+    assert abs(kappa([True] * 9 + [False], [True] * 10)) < 1e-9  # 90% raw agreement, zero beyond chance
     lo, hi = wilson(15, 15)
     assert 0.79 < lo < 0.81 and hi == 1.0, (lo, hi)  # 15/15 still leaves room down to ~80%
     assert cluster_bootstrap([[True] * 5] * 3) == (1.0, 1.0, 1.0)  # the collapse the docstring warns about

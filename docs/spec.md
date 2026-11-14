@@ -298,7 +298,8 @@ justification. A rule with no justification gets deleted.
 - Judge self-consistency: re-run the judge 3× on the same outputs and measure the flip rate.
 - Known negatives: empty reply, "I don't know", a confident answer to the wrong question. The judge must fail all three.
 
-**Outputs:** O3 (model half), O8, O9, O10.
+**Outputs:** O3 (model half), O8, O9, O10, done: [p4-judges.md](p4-judges.md). Pairwise was run on 27 label-implied
+pairs instead of "prompt v1 vs v2" (no v2 agent prompt exists yet; see the write-up).
 **Done when:** the held-out agreement and confusion matrix for the chosen judge are reported, with the before/after effect of prompt
 iteration. The judge passes the known-negative test.
 
@@ -547,6 +548,8 @@ The rates are from the claude-api skill's cached price table (2026-11-03), per m
 | **Measured (P2)**: SUT trial, Haiku 5.5 effort medium | 2.6 calls, 4.5k in, 0.47k out (60-case run: $0.041; Vessel stats match the harness) | **$0.0007** |
 | Full code-graded run: 60 cases × 10 trials (P6) | | ~$1–2 |
 | Opus 5.5 judge call | ~3k in, ~1.5k out; **one call per criterion, 3 criteria** | ~$0.04 per call, ~$0.12 per judged trial |
+| **Measured (P4)**: Opus 5.5 judge call, effort medium | ~1.4k in, ~0.18k out | **~$0.009 per call, $0.028 per judged reply**; Haiku 5.5 $0.0007 per judged reply |
+| **Measured (P4)**: all P4 judge calls | 1,736 Claude calls | **$11.67** (budgeted ~$80) |
 | P4 judge iteration | 80 dev trials × 3 criteria × ~5 prompt versions | ~$50 |
 | P4 held-out + self-consistency + judge comparison | | ~$30 |
 | P7 lifecycle: 3 prompt versions × 60 cases × 3 trials, judged | | ~$65 |

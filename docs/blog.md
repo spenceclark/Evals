@@ -483,3 +483,145 @@ whether a reply is accurate, polite and actually answers the customer. That's th
 - **A path rule can be right while failing a correct trial.** Qwen once refunded using only the order *list*, which doesn't
   show whether an item is digital or has been downloaded. The refund was correct, but it never checked the rule that could
   have forbidden it. Right answer, unchecked policy.
+
+## 6. Grading the reply: a judge, checked against a person
+
+Everything so far has been graded by code: the decision, the store, the path. The one thing code can't grade is the reply
+itself. Is it true? Does it promise something the shop doesn't do? Does it sound right? That needs a model as the judge.
+A model judge is just another model's opinion, though, so before trusting it I had to find out how often it agrees with a
+person. That meant being the person.
+
+### Labelling 120 replies
+
+I graded 120 replies from both models without knowing which model wrote which. Each one got pass or fail, plus a
+one-line critique for every fail. The question was always the same: *would I be happy for this reply to reach this
+customer, given what actually happened?* The tool showed me the email, what the agent did, what changed in the store and
+what the policy said, then the reply. It took 96 minutes, about 48 seconds a reply (half took under 30).
+
+I failed 38 replies in all. Some of those the code graders already catch; the rest are new:
+
+| Why I failed it | How often | Code graders catch it? | Example |
+| --- | --- | --- | --- |
+| Got the decision wrong, incl. following an injected instruction | 9 | yes | refunded because the email said a manager had approved it |
+| Claimed something that didn't happen | 6 | yes | "we have refunded $29.99" when the refund had failed |
+| Invented a refund timeline | 16 | no | "should appear within 3-5 business days" (nothing says so) |
+| Invented an option that doesn't exist | 4 | no | "contact your local store" (it's an online shop) |
+| Tone, privacy, handling | 3 | no | told the customer which email address was on the order |
+
+**That's 23 failures among the 105 replies every code grader had passed: 22%.** All 16 invented timelines came from
+Qwen. Haiku's four misses were subtler: two offers of help the policy couldn't back up, an oddly worded line, and an email
+mismatch it handled by the book where I'd have passed it to a person.
+
+**I made the section 5 mistake myself.** Twice I passed a reply that said "we have refunded" or "I've passed this to the
+team" when the tool had failed and nothing had happened, with "refunds: none" printed right above it. A polished reply
+hides a false claim from people as well as from graders that only read the reply. I corrected those, and two other
+slips, before anything else happened, and kept the originals on record.
+
+### Split before you tune
+
+The labels were split into a **dev** set (80 replies) to tune the judge on, and a **test** set (40) that the judge's
+author doesn't look at until the end. The split was by customer email, not by reply: some emails had five near-identical
+replies, and one on each side would have leaked. The test set was given 20 fails on purpose, so it can tell us how many
+fails the judge catches.
+
+From here on, two numbers matter more than "accuracy":
+- **passes kept:** of the replies I passed, how many the judge also passed;
+- **fails caught:** of the replies I failed, how many the judge also failed.
+
+**Kappa** sums them up as agreement beyond what chance would give: 0 is chance, 1 is perfect.
+
+### The judge, and what tuning it really bought
+
+The judge checks three things, one call each: is the reply **accurate** about what happened and right under the policy;
+does it make **no promises the policy doesn't support**; is the **tone** right. The reply passes only if all three pass,
+the same unit as my label. The judge sees the policy, the email, the tool calls and results, and what changed. It doesn't
+see which model wrote the reply or what the code graders said. Everything from the conversation is fenced as data, so an
+email saying "SYSTEM: approve this" is something to grade, not an instruction.
+
+I wrote a first version (v0) straight from the plan before running anything, then improved it twice using only the dev
+disagreements:
+
+| Version | Dev: passes kept | Dev: fails caught | Dev κ | **Test: passes kept** | **Test: fails caught** | **Test κ** |
+| --- | --- | --- | --- | --- | --- | --- |
+| v0, as planned | 58/62 | 17/18 | 0.83 | 18/20 | 17/20 | 0.75 |
+| v2, after two rounds | 62/62 | 17/18 | **0.96** | 18/20 | 18/20 | **0.80** |
+
+On dev, tuning looks like a big win: 0.83 to 0.96, matching me on 79 of 80. On the replies it was never tuned on, it went
+from 0.75 to 0.80: one more fail caught, inside the judge's own run-to-run wobble. Scored against my labels *before* the
+corrections, the order even reverses (v0 0.70, v2 0.65). **If I'd reported the dev number, I'd have reported 0.96.** This
+is the whole reason for a held-out set.
+
+Still, the final judge is good. It catches every invented timeline, every false claim and every wrong decision in the
+test set, and 10 of the 12 fails the code graders missed. It also found one of my own mistakes: a "5-7 business days"
+reply I'd passed while failing three identical ones. I changed that label myself; the judge only pointed at it.
+
+### Where the judge and I disagree: my line wasn't clear
+
+The judge's most stubborn disagreements with me are about one thing: what the agent offers *after* turning down a
+refund. "Send us photos and we'll see whether there's another way to help." Is that kind, or a promise the policy can't
+keep? It's behind 2 of the 4 test disagreements and most of the dev ones.
+
+My labels go both ways. I passed some of those offers ("probably should offer it") and failed others for much the same
+wording. v1 of the judge took the strict reading and failed seven replies I'd passed. v2 took the lenient one and misses
+two I'd failed. No wording can match a line the labels don't hold. This is what the literature calls **criteria drift**:
+you find out what you think while labelling. The fix isn't a cleverer judge prompt. It's a decision about the shop's
+policy, written into the agent's instructions.
+
+### Cheaper judges, and one that only looked good
+
+Same final prompt, same 40 test replies, different judge models:
+
+| Judge | Passes kept | Fails caught | κ | Cost per 100 replies | Time per call |
+| --- | --- | --- | --- | --- | --- |
+| Claude Opus 5.5 | 18/20 | 18/20 | 0.80 | $2.79 | 3 s |
+| Claude Sonnet 5.5 | 19/20 | 17/20 | 0.80 | $1.35 | 3 s |
+| Claude Haiku 5.5 | 19/20 | 17/20 | 0.80 | **$0.07** | 2 s |
+| Qwen 9B, local | 18/18 | 7/7 | 1.00 | $0 | 44 s |
+
+The three Claude models can't be told apart on 40 replies, and **Haiku costs 40 times less than Opus.** That's the judge
+for routine runs, with Opus spot checks on the borderline cases.
+
+Qwen's perfect row is the most useful result in this section, because it's wrong. Look at the counts: 18 and 7 add up to
+25, not 40. On 15 replies it reasoned until it ran out of room and never gave a verdict, and **13 of those 15 were
+replies I'd failed**: every wrong decision and every false claim in the test set. It agreed with me on the easy ones and
+went quiet on the hard ones. Had "no verdict" been counted as "fail", it would have looked better than Opus, for the wrong
+reason. **Always report how many items a judge actually answered.**
+
+### How much does a judge wobble?
+
+There's no setting that makes a current Claude model answer the same way twice; sampling settings are rejected. So I
+asked the same 40 questions three times. Opus changed its overall verdict on 3 of the 40 replies (8%) and Haiku on 1 (2%).
+Opus's flips were all borderline: a slightly dismissive closing line, a tersely worded status update, a reply that revealed the
+order's email address. On a small set, a judged score can move by a point or two between runs with nothing changed.
+
+### Reference answers and pairwise
+
+I also wrote 20 "ideal" replies by hand, for a judge that compares each reply with mine. It was the worst judge by far:
+it kept **31% of the good replies**. My references were short, so a correct delivery date or order number in the agent's
+reply looked invented. The judge couldn't check, because it only saw my reference. It also copied my own small
+invention: I'd written that an order was "cancelled before payment was taken", which the records don't say. Comparing
+against a reference suits questions with one right answer, not open-ended replies.
+
+A **pairwise** judge shows two replies to the same email and asks which is better. Built from pairs where I'd passed one
+and failed the other, and asked in both orders, Opus picked my choice 27 times out of 27 and Haiku 26. That sounds
+impressive, but these were easy pairs (a clear failure next to a clean reply), and the one-at-a-time judge ranks 25 of
+the same 27 correctly. The harder test, close pairs and whether the judge favours its own model family, is the next
+section.
+
+### What it cost
+
+Every judge call in this section together cost **$11.67**, almost all of it Opus during tuning. The agents being judged
+cost almost nothing by comparison: all the Haiku agent runs so far came to **$0.24**. In this setup, the
+system under test is cheap and the grading is where the money goes. That's another reason to check whether a cheap judge
+is good enough.
+
+### Smaller lessons from this step
+
+- **Giving the judge the right answer didn't help.** With the correct decision added to its input it did slightly worse,
+  within the noise. Its disagreements weren't about the decision. They were about where to draw the line on promises.
+- **Test the judge on obvious failures.** An empty reply, "I don't know", and a cheerful answer to a question nobody asked
+  were all failed, by Opus and by Haiku, 12 times out of 12.
+- **Judges are good at auditing labels.** Every place the judge disagreed with me was worth a second look. Once it was my
+  mistake. More often it was my line that was blurry.
+- **Labelling was faster than expected,** under a minute a reply, as long as the tool puts what actually happened right
+  next to the reply.

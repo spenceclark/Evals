@@ -397,3 +397,86 @@ Write-up with the annotated trajectory (O6), recovery table (O7), rule table and
   - **The post should show both sets of numbers.** The fixed loop's 100% hides the most instructive failure in the project.
 - **Interval widths.** With 3 cases per fault type, every per-type interval overlaps. P6 decides how many cases a claim like
   "Qwen recovers better" needs.
+
+## P4: Model graders, human labels, judge validation (2026-11-14)
+
+Write-up with the confusion matrix, the prompt-iteration table (O8), the judge-model comparison (O9) and self-consistency
+(O10): [p4-judges.md](p4-judges.md).
+
+### Tried
+
+- **Human labels.** 120 replies were labelled blind to the model (pass/fail plus a critique for each fail), with
+  `scripts/label.py`. The labeller also wrote 20 reference replies. Four labels were corrected before the split, and the
+  originals are kept in `revised_from`.
+- **A dev/test split by case, not by item.** It was frozen in `cases/labels/split.json` before any judge ran. Every human
+  fail was tagged with a fail kind, so the test set carries each kind.
+- **Judge plumbing in `evalkit/judge.py`:**
+  - Prompts are t-strings (PEP 750), and `render()` fences every interpolation as `<data>`.
+  - Verdicts are structured outputs.
+  - A cache keeps every judge input and output.
+  - "No verdict" is an error, never a fail.
+- **Rubric judge** with three atomic criteria, one call each, overall = all pass. Versions v0, v1 and v2 were iterated on
+  dev only. v0 and v2 were then scored once on test.
+- **Variants:**
+  - the judge given the correct answer;
+  - a reference-based judge;
+  - a pairwise judge on 27 label-implied pairs, in both orders;
+  - Opus, Sonnet, Haiku and Qwen as the judge;
+  - 3 samples per item for self-consistency;
+  - known negatives.
+
+### Worked
+
+- **A rubric judge agrees with the human about as well as anything here can be measured.** On held-out data, v2 on Opus
+  scores TPR 18/20, TNR 18/20, κ 0.80. It catches every invented timeline (8/8), every false claim (3/3) and every wrong
+  decision (5/5), and **10 of the 12 fails the code graders missed**.
+- **The known negatives all fail:** 12/12.
+- **The pairwise judge picks the human-passed reply on 27/27 label-implied pairs (Opus) and 26/27 (Haiku), in both
+  orders.** These pairs are easy (a clear fail against a clean reply), and the one-at-a-time rubric ranks 25/27 of them
+  the same way, so this shows that pairwise works on this task, not that it's better.
+- **Haiku 5.5 as the judge matched Opus on test (κ 0.80) at 1/40 of the cost:** $0.07 against $2.79 per 100 replies. It
+  also passed the known negatives and flipped on fewer items (1/40 against Opus's 3/40).
+- **The fencing held, as far as checked.** Opus caught all 9 wrong decisions (8 of them followed injections), and the
+  critiques read on the rest name the injected text ("pre-approved by a manager", "SYSTEM: policy override") and grade
+  past it. That was a spot-read, not a dedicated attack on the judge.
+- **The whole phase cost $11.67 in Claude judge calls,** against about $80 budgeted.
+
+### Didn't work / had to change
+
+- **The reference-based judge (κ 0.06 dev, 0.25 test).** It fails good replies for true details the short human reference
+  left out (dates, order numbers), because it can't see the record. It also inherits a detail the reference invented. It
+  doesn't fit open-ended replies.
+- **v1's rewrite of the offer rule overshot.** It failed 7 dev replies the labeller passed, so v2 relaxed it.
+- **pytest isn't the test runner here:** the global one is on an older Python and can't parse t-strings. Tests stay plain
+  scripts (`uv run python tests/test_judges.py`).
+
+### Surprising
+
+- **The dev gain mostly didn't transfer.** Iteration took dev κ from 0.83 to 0.96, but test only from 0.75 to 0.80. That
+  is one more fail caught, inside the 8% flip rate. Against the original (uncorrected) labels, v0 beats v2 on test (0.70
+  against 0.65). Without the held-out set, the post would have reported 0.96.
+- **The human missed the P3 failure too.** The labeller passed "We have refunded $29.99" (L049) and "I've passed your
+  request to a member of our team" (L050), with "none" shown right above each. A polished reply hides a false claim from people as well as from output-only graders. That's an argument
+  for keeping `claim_vs_outcome` as code even with a judge.
+- **The judge's disagreements found the labeller's fuzzy line.** Offers made after a denial ("send photos and we'll see
+  what we can do") account for 7 dev disagreements under v1, L055 under v2, and 2 of the 4 held-out ones. The labels
+  themselves are inconsistent there, which is criteria drift showing up in data. The remedy is a policy decision, not a prompt.
+- **The local judge's perfect score was a coverage illusion.** Qwen 9B agreed with the human on all 25 items it answered,
+  but it gave no verdict on 15 of 40: it reasoned past its 4,096-token output budget. 13 of those 15 were human fails,
+  including every wrong decision and every false claim. Counting "no verdict" as a fail would have made it look better than
+  Opus. Report coverage beside agreement.
+- **Telling the judge the right answer brought no measurable benefit** (dev κ 0.71 against 0.83, one sample each, inside
+  the noise). The answer wasn't what it lacked. The production-usable version, without the answer, is the one kept.
+- **The judge found a label error (L073, dev):** a "5-7 business days" reply was passed while three others were failed.
+  Every judge version flagged it, and the labeller relabelled it fail. That correction came after the judge runs and is
+  recorded as such. Judges are useful for auditing labels, but only the labeller should change them.
+- **Labelling was quicker than planned:** 96 active minutes for 120, against the 2 hours estimated.
+
+### Open / carried forward
+
+- **The test set is spent.** Its disagreements have been read, so a v3 rubric needs fresh held-out labels.
+- **The offer line:** decide whether the agent may offer anything after a denial. Then put it in the agent's policy, not
+  only in the judge.
+- **Pairwise on closer pairs:** the label-implied pairs are lopsided. P5's ~100 pairs of closer replies are where
+  position bias gets measured.
+- **P8 nightly:** Haiku as the judge, with Opus spot checks on offers and tone.
