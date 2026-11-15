@@ -67,7 +67,10 @@ def order_id(case: Case, trial: Trial) -> Score | None:
     if not trial.output:
         return _no_close("order_id")
     got = str(trial.output.get("order_id") or "").strip().upper() or None
-    return Score("order_id", got == e["order_id"], reason=f"expected {e['order_id']}, got {got}")
+    # order_id_also: other values a correct agent may record, e.g. an "answered" question that isn't about the order
+    # the email happens to mention (P7, cap-t076): recording that order or none are both fair.
+    ok = got == e["order_id"] or got in e.get("order_id_also", [])
+    return Score("order_id", ok, reason=f"expected {e['order_id']}, got {got}")
 
 
 def amount(case: Case, trial: Trial) -> Score | None:

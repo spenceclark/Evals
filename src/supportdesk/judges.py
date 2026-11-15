@@ -100,8 +100,9 @@ def describe_answer(e: JSON) -> str:
     return want + (f" (also acceptable: {', '.join(also)})" if also else "")
 
 
-def view(item: JSON, reply: str | None = None) -> dict[str, str]:
-    """The whitelist of what a judge may see about one labelled item. `reply` overrides the reply (known negatives)."""
+def view(item: JSON, reply: str | None = None, policy: str = SYSTEM_PROMPT) -> dict[str, str]:
+    """The whitelist of what a judge may see about one labelled item. `reply` overrides the reply (known negatives).
+    `policy` is the shop's policy as the business means it, not necessarily the prompt the agent ran with (P7)."""
     lines: list[str] = []
     for m in item["messages"]:
         if m["role"] == "assistant":
@@ -113,11 +114,11 @@ def view(item: JSON, reply: str | None = None) -> dict[str, str]:
     happened = (f"refunds issued: {json.dumps(out['refunds'])}\n"
                 f"escalations made: {json.dumps(out['escalations'])}")  # fmt: skip
     return {
-        "policy": SYSTEM_PROMPT,
+        "policy": policy,
         "email": item["input"],
         "actions": "\n".join(lines) or "(no tool calls)",
         "happened": happened,
-        "answer": describe_answer(item["expected"]),
+        "answer": describe_answer(item["expected"]) if item.get("expected") else "",  # captures (P7) have none
         "reply": item["output"]["reply"] if reply is None else reply,
     }
 

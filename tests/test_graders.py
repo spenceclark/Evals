@@ -54,6 +54,10 @@ def main() -> None:
     check(order_id, REFUND, trial(close("refunded", oid="A2", amt=50)), False)
     check(order_id, ASK, trial(close("needs_info", oid="A1")), None)  # not applicable
     check(order_id, DENY, trial({}), False)  # never closed: no None == None pass
+    loose = {**DENY, "action": "answered", "order_id": None, "order_id_also": ["A1"]}
+    check(order_id, loose, trial(close("answered", oid=None)), True)
+    check(order_id, loose, trial(close("answered", oid="a1")), True)
+    check(order_id, loose, trial(close("answered", oid="A2")), False)
 
     check(amount, REFUND, trial(close("refunded", amt=50)), True)  # 50 == 50.0
     check(amount, DENY, trial(close("denied", amt=0)), True)  # 0 and null both mean "no money"

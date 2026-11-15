@@ -44,6 +44,38 @@ assert SYSTEM_PROMPT.count(_RULE_5) == 1
 NO_ESCALATION_PROMPT = SYSTEM_PROMPT.replace(_RULE_5, "5. Otherwise")
 assert "$200" not in NO_ESCALATION_PROMPT
 
+# P7's v1: a plausible first draft, i.e. the current prompt (v2) without its identity rule (rule 1: the sender must
+# match the order; ask rather than guess) and without "look up the order before deciding". An ablation, not a prompt
+# that ever shipped. The lifecycle runs v1 -> v2 (= SYSTEM_PROMPT) -> v3 (v2 plus the fix found in traffic).
+_LOOKUP_FIRST = " Look up the order before deciding anything about it."
+_RULE_1 = (
+    "1. The sender's email must match the email on the order. If it doesn't, or you can't tell which single order the\n"
+    "   customer means, ask for what you need (needs_info). Never guess.\n"
+)
+assert SYSTEM_PROMPT.count(_LOOKUP_FIRST) == 1 and SYSTEM_PROMPT.count(_RULE_1) == 1
+
+
+def _renumber(s: str) -> str:
+    for n in range(2, 7):
+        assert s.count(f"\n{n}. ") == 1
+        s = s.replace(f"\n{n}. ", f"\n{n - 1}. ")
+    return s
+
+
+V1_PROMPT = _renumber(SYSTEM_PROMPT.replace(_LOOKUP_FIRST, "").replace(_RULE_1, ""))
+assert "email must match" not in V1_PROMPT and "\n5. Otherwise" in V1_PROMPT
+
+# P7's v3: v2 plus the fix for what simulated traffic showed. v2 refunded whatever partial amount a customer named as
+# compensation ($8 off for a scratch, keeping the item); the policy didn't say. The owner's labels did: refunds are for
+# whole items or whole orders only, so a request for any other amount is denied.
+_RULE_6 = "6. Otherwise refund what the customer asked for: individual items, or the whole order."
+_RULE_6_V3 = """6. Otherwise refund what the customer asked for: individual items at their full price, or the whole \
+order.
+   Never any other amount: a request for a partial refund or compensation (for an item the customer keeps, say) is
+   denied. You may tell them that a refund of the whole item is available under this policy."""
+assert SYSTEM_PROMPT.count(_RULE_6) == 1
+V3_PROMPT = SYSTEM_PROMPT.replace(_RULE_6, _RULE_6_V3)
+
 
 def _schema(props: JSON) -> JSON:
     return {"type": "object", "properties": props, "required": list(props), "additionalProperties": False}

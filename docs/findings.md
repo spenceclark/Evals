@@ -653,3 +653,77 @@ Write-up with the k-curves (O14), the A/A runs (O15), detection by cases × tria
   hand-written cases already break it every time.
 - **P7:** the regression suite should flag any case that drops from always-pass to always-fail, alongside the averaged
   interval.
+
+## P7: Production checks, captures → cases, lifecycle (2026-11-15)
+
+Write-up with the flag rates (O18), the pipeline (O19) and the lifecycle (O20):
+[p7-production.md](p7-production.md).
+
+### Tried
+
+- **Label-free checks** (`supportdesk/checks.py`): 7 graders that run with `expected={}`, plus an inline guardrail
+  (the store refuses over-total refunds). `tests/test_checks.py` proves the split.
+- **Synthetic traffic** (`scripts/simulate_traffic.py`): 200 emails written by Sonnet 5.5 from code-picked facts across
+  8 kinds, plus 10 hand seeds. The facts go to a sidecar the monitor never reads, kept as an answer key.
+- **Three prompt versions on Haiku:**
+  - v1: v2 without rule 1 and without "look up first", an ablation;
+  - v2: the current prompt;
+  - v3: v2 plus a whole-items-only rule taken from the labels.
+- **Monitor** (`scripts/captures_to_cases.py`): rebuilds each trial from its last Vessel capture, runs the label-free
+  checks, counts guardrail refusals, and judges a fixed 10% sample. Flagged trials go to an inbox.
+- **20 labels by the owner:** 11 flags and 9 random unflagged trials, labelled blind.
+- **Lifecycle** (`scripts/lifecycle.py`): 3 versions × 86 cases × 10 trials, under rules fixed before the run. $1.98.
+
+### Worked
+
+- **Captures are enough to rebuild a trial:** 420 of 420 matched the harness record exactly.
+- **Every code flag was a real failure** (6 of 6 on v2). The judge's flags were 1 real out of 5.
+- **The loop closed.** v2 refunded a customer-named partial amount on 4 captured emails, failing each 10/10. The owner's
+  label (deny, whole items only) became v3's rule 6, and v3 passes all four 10/10. They graduate to regression, which
+  meets the done-when 4 times over.
+- **v3 generalised within the traffic:** all 15 partial-amount emails were denied (v2: 3 refunded, 8 denied, 4 other).
+  No generated case got worse.
+- **Checking the labels paid off.** `decide()` caught a refund label on an order 158 days past delivery. The oracle
+  caught only the two-action cases. `decide()` needs the specs sidecar, so on real traffic (and on 9 of these 20
+  unkeyed labels) there's no such check.
+
+### Didn't work / had to change
+
+- **The 66 cases can't separate v1 from v2:** 100% on all three versions, at 10 trials. Only the captured cases moved.
+- **Two captured cases can't be passed** by any prompt, not even the oracle: a refund plus an escalation, while
+  `close_ticket` records one action. They stay capability cases (a tool limit).
+- **Captured cases go in `cases/captured.jsonl`, not `full.jsonl`,** because `make_cases.py` rewrites `full.jsonl`.
+  They join as capability cases and graduate in place, rather than going straight to a regression file as the spec
+  said.
+- **cap-t076's label was too strict.** v1 failed it 3/10 on `order_id` alone, for recording the order a gift-card
+  email mentioned. Loosened after the run with `order_id_also` (a new optional key the `order_id` grader reads), and
+  regraded: v1 10/10.
+- **Vessel stopped recording mid-run** on the v3 traffic: "capture stopped after 5 consecutive write failures
+  (SQLite FOREIGN KEY constraint failed)". 63 of 210 trials were lost, and 4 more lost their final call, which showed
+  up as false `schema` flags. The monitor now prints coverage: missing trials, and Vessel's recording status. After a
+  restart, the rerun (`-v3b`) captured 210 of 210: 6 flags (3%), 0 partial refunds, all 140 keyed emails right.
+
+### Surprising
+
+- **A wrong refusal is invisible to every label-free check.** v1 denied 11 of 20 other-sender emails. The monitor caught
+  1, through the judge's sample. A 9-trial random sample misses all 10 unflagged ones about 63% of the time.
+- **The owner's first labels disagreed with the written policy.** On 3 other-sender emails: deny and "phone us", where
+  the policy says needs_info and there is no phone line. The owner kept the policy. Labelling surfaced a policy
+  question the cases never did.
+- **The bug was a gap in the policy, not a model slip.** No rule covered compensation amounts. The fix was writing the
+  rule, which only the labeller could do.
+- **The failures were deterministic per email, but rare across emails.** v2 failed the same 4 emails every time, yet
+  paid out on only 3 of 15 partial-amount emails. Wording decides it.
+- **The judge saw policy text, not intent.** It was given v2's policy. For v3 traffic it is now given v3's, or it would
+  fault replies for following the new rule.
+
+### Open / carried forward
+
+- **Multi-issue tickets:** `close_ticket` needs a list of actions. That's a tool and grader change.
+- **Unsupported "no return needed" claims in replies** recur across versions (t133, t060, t153). A reply-rubric item
+  or a prompt line, if it matters.
+- **Report the Vessel capture failure** (the FK constraint) to the Vessel project.
+- **Which prompt is current?** `haiku` still runs v2. v3 lives beside it as `haiku_v3`, so P1–P6 runs stay
+  reproducible. P8 has to decide which one CI gates.
+- **P8 (CI):** the regression suite is now 44 generated + 18 captured cases. The per-case "always-pass → always-fail"
+  rule from P6 belongs in the CI gate.

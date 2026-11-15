@@ -14,7 +14,7 @@ from openai import AsyncOpenAI
 
 from evalkit.core import Case, Trial
 from supportdesk.agent import LLM, AnthropicLLM, Effort, OpenAILLM, run_agent
-from supportdesk.shop import NO_ESCALATION_PROMPT, SYSTEM_PROMPT, TOOLS, Store, ToolError
+from supportdesk.shop import NO_ESCALATION_PROMPT, SYSTEM_PROMPT, TOOLS, V1_PROMPT, V3_PROMPT, Store, ToolError
 
 VESSEL = os.environ.get("VESSEL_URL", "").rstrip("/")
 
@@ -82,6 +82,10 @@ qwen = AgentTask("Qwen3.5-9B-Unsloth:IQ4", "openai", max_tokens=4096)
 haiku_no_escalation = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium",
                                 system=NO_ESCALATION_PROMPT)  # fmt: skip
 haiku_close_any = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium", close_alone=False)
+# P7 lifecycle: v1 (a first draft: an ablation of the current prompt), v2 = haiku (the current prompt), v3 (v2 plus the
+# fix for what the monitor found in simulated traffic).
+haiku_v1 = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium", system=V1_PROMPT)
+haiku_v3 = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium", system=V3_PROMPT)
 
 
 async def oracle(case: Case, *, rep: int, run_id: str) -> Trial:

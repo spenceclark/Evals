@@ -906,3 +906,148 @@ section is computed from those saved runs, so rerunning the analysis costs nothi
   hard. Compute pass^k per case and average.
 - **Plant a known bug.** It's the only way to know whether your statistics can find one, and how many cases they need
   to do it.
+
+## 9. From production back into the suite
+
+The last section ended on an awkward fact: the current agent passes every trial. A suite it can't fail tells me nothing
+about the next prompt change. The cases I wrote cover the failures I could imagine. The next ones have to come from
+somewhere I didn't think of, which in a real system means production.
+
+I don't have production. So this step makes some, and says so: **the traffic here is synthetic.** Code picked the facts
+for 200 customer emails: who sent each one, which order it was about, and what they wanted. A different model (Sonnet)
+wrote the wording, in styles from terse to rambling, plus 10 emails I wrote by hand. Every email ran once through the
+agent, through Vessel, the proxy from section 3 that captures every model call.
+
+### What can you check without the answer?
+
+Every grader so far compares the agent with an expected answer. A live email doesn't come with one. So the first
+question is which of my checks still work without it. It's most of them:
+
+- **Without an answer:** the close call fits its schema; what the ticket says matches what the store shows; the order
+  was looked up before money moved; the refund is a sum of item prices; nothing was done twice; the step count is
+  sane.
+- **Only with an answer:** was the decision right? Refund, deny, escalate or ask: every check of the *decision* needs
+  to know what the decision should have been.
+
+Those checks come in two forms. One runs **inline and prevents**: the store refuses any refund larger than what's left
+on the order. It never fired. The rest run **afterwards, over the captures, and detect**. Every flag points at a
+captured request I can open. On top of the code checks, the judge from section 6 read about 10% of the replies.
+
+A capture turns out to hold almost everything: the instructions, the tools, the whole conversation and the closing
+call. I rebuilt all 420 trials (two prompt versions × 210 emails) from Vessel's captures alone, and every one matched
+what my harness had recorded. Two things are missing. The store's state, which I rebuilt from the tool results. And the
+right answer, which nothing can rebuild.
+
+### Three versions, one lifecycle
+
+To watch a suite change over time, I needed versions. **v2** is the agent's prompt as it stands. **v1** is v2 with the
+identity rule deleted ("the sender's email must match the order; ask, never guess") and the line "look up the order
+before deciding" gone too, standing in for a first draft.
+**v3** would be whatever the traffic told me to fix.
+
+The first surprise came before any traffic. **v1 passed all 66 of my cases.** Without the identity rule, Haiku still
+asked for the right email on my hand-written mismatches. My suite couldn't tell the two prompts apart.
+
+### What the monitor caught
+
+The monitor flagged 4% of v1's trials and 3% of v2's. Afterwards I scored every flag against the answers I wrote for
+them (more on that below):
+
+- **Every code flag was a real failure.** Four were refunds of an amount the customer named: "$8 off for the scratch,
+  I'll keep it", and $150 on a $389 tent with parts missing. v2 paid them. My policy says to refund items or whole
+  orders. It never says what to do about a request for compensation, so the agent made it up.
+- **Two flags were a limit of my own design.** One customer wanted a refund on one order and an escalation on another.
+  The agent did both, correctly. But closing a ticket records a single action, so the ticket said "refunded" while an
+  escalation also happened. No prompt can fix that. It needs the tool changed.
+- **The judge's flags were mostly about wording.** Of its five, one was a wrong decision. The rest were replies with
+  the right decision and a sentence I'd query, like "matches the carrier's tracking" when nobody had checked tracking.
+
+### What it missed
+
+Because the traffic is synthetic, I have something production never has: the facts behind every email, so an answer
+key. **v1 wrongly refused 11 of the 20 people writing about someone else's order.** It should have asked for the
+account holder. The monitor flagged one of the eleven, and only because that one happened to fall in the judge's 10%
+sample.
+
+A wrong refund leaves a trace: money moved, and a check can see it. **A wrong "no" leaves nothing.** No code check
+fires on a refusal, so the only checks that could catch it were the judge's sample and a person. My random sample of
+nine unflagged trials found nothing wrong either. With 10 bad trials among about 200 unflagged ones, nine picks miss
+all of them about two times in three.
+
+### The answer comes from a person
+
+A capture never contains the right answer, so someone has to supply it. I labelled 20 cases: the 11 flags and 9 random
+unflagged trials. I labelled them blind, seeing the email, the policy and the shop's records, but not what the agent did
+or why it was flagged.
+
+Then I checked my labels the way section 3 checks the cases: the script that encodes the policy worked out its own
+answer, and another carried each of mine out against a real store. That caught two things:
+
+- **I'd refunded an order delivered 158 days ago.** The email was a prompt injection, and I'd noted only that $18
+  didn't need approving. I missed the date; the policy script didn't.
+
+That policy check had a catch of its own: it needs the facts each email was generated from, which real traffic doesn't
+have. Nine of my twenty labels were on kinds of email it couldn't judge at all.
+- **I'd disagreed with my own policy.** On three emails about someone else's order I'd written "deny: they need to
+  write from the original address, or phone us". The policy says ask, and the shop has no phone. Asked to choose, I
+  kept the policy. But labelling real-looking traffic raised a question my hand-written cases never had.
+
+On the compensation emails the policy said nothing, so the decision was mine: **deny; we only refund whole items.**
+That sentence became v3's only change.
+
+### Graduation
+
+The 20 labelled cases joined the suite as *capability* cases: things I want the agent to do, not yet things it reliably
+does. I wrote the promotion rule down before running anything: a case graduates to the *regression* suite once the
+fixed prompt passes it 10 times out of 10.
+
+Then all three versions, on all 86 cases, 10 tries each:
+
+| Cases | v1 | v2 | v3 |
+| --- | --- | --- | --- |
+| my 66 | 100% | 100% | 100% |
+| 18 captured | 73% | 78% | **100%** |
+| 2 captured, needing two actions | 0% | 0% | 0% |
+
+**Only the captured cases separate the versions.** The four compensation cases went from 0 out of 10 on v2 to 10 out
+of 10 on v3. That's the loop closed: a failure seen in traffic is now a regression case that fails on the old prompt
+and passes on the fixed one. Any future prompt that pays "$8 for the scratch" fails the suite.
+
+v2's failures weren't flaky. Each compensation email failed every time. But across all 15 compensation emails in the
+traffic, v2 paid out on only 3. Which emails failed depended on how they were worded, not on chance, which is exactly
+why my own phrasings never hit it. On the same 210 emails, v3 refused all 15.
+
+18 of the 20 captured cases graduated. The two that need a refund *and* an escalation stay as capability cases. They're
+a reminder of a tool change I haven't made.
+
+### And then the monitor went quiet
+
+I ran v3 on the traffic too, to see the monitor's picture after the fix. It flagged almost nothing. Then I noticed it
+had only seen 147 of the 210 trials. **Vessel had stopped recording partway through** (a database error), and kept
+forwarding traffic without capturing it.
+
+A monitor that's lost its input looks exactly like a monitor watching healthy traffic. Mine only noticed because my
+harness keeps its own record to compare against.
+
+After a restart, the full run told the real story. The monitor flagged 3% of v3's trials, the same rate as v2. But
+v2's flags were money paid out wrongly, and v3's were the two-action tickets plus four replies the judge disliked for
+their wording. **The flag rate didn't move; what it flagged changed completely.** A number on a dashboard wouldn't have
+shown the fix. Now it prints a coverage line: how many trials it saw against how many
+ran, plus whether Vessel is still recording. In production, that count has to come from somewhere other than the logs
+being checked.
+
+### What it cost
+
+About $3.40: 840 traffic trials, 2,580 lifecycle trials, generating the emails, and the judge's sample. The expensive
+part was my half hour of labelling.
+
+### Smaller lessons from this step
+
+- **The checks that need no answer catch the failures that leave a trace.** Wrong refunds, mismatched claims, money
+  moved without a lookup. A wrong refusal leaves no trace, and only labels find it.
+- **Labelling is where the policy gets written.** The real bug was a gap in the instructions, and only a person could
+  fill it. Writing the label was writing the rule.
+- **Check the labels too.** A script that carries out each answer caught a date I'd missed.
+- **Count your monitor's inputs.** Silence can mean healthy traffic, or no traffic reaching the monitor.
+- **A saturated suite needs new cases, not more runs.** Mine scored 100% on all three versions. Everything that told
+  them apart came from outside it.

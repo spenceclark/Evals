@@ -378,6 +378,8 @@ capability cases graduate to regression?
   - Run the monitor checks, and print the flag rate by check (O18).
   - Write flagged trials to `cases/inbox.jsonl` with `source: capture:<id>` and `expected` blank.
   - **You fill in `expected` for ~20.** Promote them to `regression.jsonl`.
+    *As built (P7):* they go to `cases/captured.jsonl` as capability cases (`make_cases.py` rewrites `full.jsonl`), and
+    graduate to regression in place when the fixed prompt passes them 10/10 (`scripts/lifecycle.py`).
 - **Lifecycle:** run both suites across 3 prompt versions. Show capability pass rates climbing, and one case graduating to
   regression.
 
@@ -559,9 +561,10 @@ The rates are from the claude-api skill's cached price table (2026-11-03), per m
 | P4 judge iteration | 80 dev trials × 3 criteria × ~5 prompt versions | ~$50 |
 | P4 held-out + self-consistency + judge comparison | | ~$30 |
 | P7 lifecycle: 3 prompt versions × 60 cases × 3 trials, judged | | ~$65 |
+| **Measured (P7)**: traffic (840 trials) + lifecycle (3 × 86 cases × 10 trials, code graders) + generation + sampled judge | 3,420 SUT trials | **~$3.4** |
 | Bias experiments (Sonnet 5.5 judge) | ~1,000 calls | ~$20 |
 | **Measured (P5)**: all bias experiments | 2,852 Claude calls (Sonnet, plus Haiku and Opus for self-preference); Qwen local | **$15.88** |
-| CI per PR | ~44 regression cases × 3 trials, code graders only | ~$0.30 |
+| CI per PR | ~44 regression cases × 3 trials, code graders only (62 after P7: 44 generated + 18 captured) | ~$0.30 |
 | Nightly judged run | Opus: ~$20/night; with a cheaper validated judge (O9): a few dollars | varies |
 | **Whole project, incl. iteration** | | **likely $200–300, dominated by Opus judge calls** |
 
