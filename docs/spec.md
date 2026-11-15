@@ -19,7 +19,7 @@ All five defaults were accepted. Each row says what would change if one is flipp
 | -- | -------- | ------- | -------------- |
 | D1 | Example system (brief: "option 2, standard/familiar") | **A customer-support refund agent for a fictional online shop** (see §3). Same shape as τ-bench's retail domain, so readers know it. | Text-to-SQL over a public sample DB gives cleaner exact-match grading but a weak path/recovery story. P3 would need re-planning. |
 | D2 | Model line-up | **System under test (SUT): `claude-haiku-5-5`** (primary) **+ local `Qwen3.5-9B-Unsloth:IQ4` via Ollama** (second family). **Judge: `claude-opus-5-5`**. `claude-sonnet-5-5`, `claude-haiku-5-5` and the local model are measured as cheaper judges in P4. | A stronger SUT (Sonnet/Opus) fails less, so there is less to grade and pass@k/pass^k barely diverge. Cost per trial rises ~20–40× (cached price table). A weaker SUT is a deliberate choice for *headroom*, not to save money. |
-| D3 | One post or a series | **Two posts.** (1) The guide: everything except tools. (2) "The same eval in 8 tools." | One post is ~2× longer. Tool comparisons go stale fastest, so keeping that post separate lets you update it without touching the guide. |
+| D3 | One post or a series | **A four-part series** (changed 2026-11-15, after P6; it was two posts). (1) Building an eval: concepts, scenario, code graders, path ([blog-part-1.md](blog-part-1.md)). (2) LLM judges: validation and bias. (3) Counting, production checks, captures → cases, CI. (4) The same eval in 8 tools. Parts 1–3 were one guide until it reached ~10k words at P6, with ~13k expected after P8. | Two posts: one ~13k-word guide, plus the tools post. Tool comparisons go stale fastest, so the tools part stays separate either way. |
 | D4 | Source of "real failures" for the captures→cases section | **Simulated production traffic** run through Vessel (P7). It is synthetic, and the post says so. | Use existing Vessel captures from earlier runs (maze / goblin / small-model tool use) for **that one section only**. More authentic, small investment in old material. |
 | D5 | Tool depth | **Port the same slice to all 8 tools.** "OpenAI Evals" means the open-source framework only. It is documented from source if it won't install on 3.14. | Port to fewer tools (cut line in §5). The comparison table still covers all 8 at the case/grader/run level. |
 
@@ -430,6 +430,9 @@ recorded.
 Assemble from the inventory. Before publishing, re-run the full suite on the final code so every number in the post comes from
 one tagged run. Write the run id in the post's footnotes.
 
+Exception: part 1 went out early (D3), on the step-by-step runs at 032fd54 (P2), 1240be3 (P3) and afe9668 (P6). Its
+numbers are before/after figures that the final code can't regenerate. The tagged rerun applies to parts 2–4.
+
 ---
 
 ## 6. Tool comparison template (filled in P9)
@@ -462,48 +465,47 @@ The **Starting hypothesis** column is from memory and **unverified**. P0 and P9 
 
 ## 7. Output inventory (acceptance checklist for goal b)
 
-| ID  | Output | Phase | Post section |
-| --- | ------ | ----- | ------------ |
+| ID  | Output | Phase | Part |
+| --- | ------ | ----- | ---- |
 | O1  | Anatomy diagram: case → trial → transcript + outcome → graders → scores → run | P1 | 1 |
-| O2  | Harness listing + LOC count | P1–P2 | 3 |
-| O3  | Grader-type table: code / model / human, with support-desk examples and measured cost and latency per 100 grades | P2, P4 | 4 |
-| O4  | Code grader snippets: exact match, schema, end-state, claim vs outcome | P2 | 4 |
-| O5  | Oracle / null baseline sanity table | P1 | 3 |
-| O6  | One annotated trajectory + failure taxonomy counts | P3 | 7 |
-| O7  | Recovery rate by fault type × model | P3 | 7 |
-| O8  | Judge vs human: confusion matrix, TPR/TNR, kappa, before/after prompt iteration (held-out) | P4 | 5 |
-| O9  | Judge model comparison: agreement vs cost | P4 | 5 |
-| O10 | Judge self-consistency (flip rate) | P4 | 5 |
-| O11 | Position bias: consistency + first-position win rate, before/after mitigation | P5 | 6 |
-| O12 | Length bias: preference shift for padded replies, before/after mitigation | P5 | 6 |
-| O13 | Self-preference matrix: judge family × author family vs human | P5 | 6 |
-| O14 | pass@k and pass^k vs k (1–10), two variants, one chart | P6 | 8 |
-| O15 | A/A run: an apparent difference from nothing, with its CI | P6 | 8 |
-| O16 | Planted degraded variant: detected or not, by cases × trials | P6 | 8 |
-| O17 | CI half-width / minimum detectable effect vs (cases, trials) | P6 | 8 |
-| O18 | Production-check code + flag rate on simulated traffic | P7 | 9 |
-| O19 | Capture → case pipeline diagram, script, and one failure → regression case walkthrough | P7 | 9 |
-| O20 | Suite lifecycle: capability vs regression across prompt versions; one case graduating | P7 | 9 |
-| O21 | CI workflow YAML, job summary screenshot, cost and time per PR | P8 | 10 |
-| O22 | Tool comparison table (§6) | P9 | Post 2 |
-| O23 | The same case + grader shown in each tool, side by side | P9 | Post 2 |
-| O24 | Compat spike table: Py 3.14 + current-Claude constraints + captured built-in judge prompts | P0 | Post 2 |
-| O25 | "Before you trust an eval" checklist | P10 | 11 |
+| O2  | Harness listing + LOC count | P1–P2 | 1 |
+| O3  | Grader-type table: code / model / human, with support-desk examples and measured cost and latency per 100 grades | P2, P4 | 1 (code), 2 (model, human) |
+| O4  | Code grader snippets: exact match, schema, end-state, claim vs outcome | P2 | 1 |
+| O5  | Oracle / null baseline sanity table | P1 | 1 |
+| O6  | One annotated trajectory + failure taxonomy counts | P3 | 1 |
+| O7  | Recovery rate by fault type × model | P3 | 1 |
+| O8  | Judge vs human: confusion matrix, TPR/TNR, kappa, before/after prompt iteration (held-out) | P4 | 2 |
+| O9  | Judge model comparison: agreement vs cost | P4 | 2 |
+| O10 | Judge self-consistency (flip rate) | P4 | 2 |
+| O11 | Position bias: consistency + first-position win rate, before/after mitigation | P5 | 2 |
+| O12 | Length bias: preference shift for padded replies, before/after mitigation | P5 | 2 |
+| O13 | Self-preference matrix: judge family × author family vs human | P5 | 2 |
+| O14 | pass@k and pass^k vs k (1–10), two variants, one chart | P6 | 3 |
+| O15 | A/A run: an apparent difference from nothing, with its CI | P6 | 3 |
+| O16 | Planted degraded variant: detected or not, by cases × trials | P6 | 3 |
+| O17 | CI half-width / minimum detectable effect vs (cases, trials) | P6 | 3 |
+| O18 | Production-check code + flag rate on simulated traffic | P7 | 3 |
+| O19 | Capture → case pipeline diagram, script, and one failure → regression case walkthrough | P7 | 3 |
+| O20 | Suite lifecycle: capability vs regression across prompt versions; one case graduating | P7 | 3 |
+| O21 | CI workflow YAML, job summary screenshot, cost and time per PR | P8 | 3 |
+| O22 | Tool comparison table (§6) | P9 | 4 |
+| O23 | The same case + grader shown in each tool, side by side | P9 | 4 |
+| O24 | Compat spike table: Py 3.14 + current-Claude constraints + captured built-in judge prompts | P0 | 4 |
+| O25 | "Before you trust an eval" checklist | P10 | 3 |
 
-**Post 1 outline (the guide):**
-1. What an eval is (vocabulary table + O1)
-2. The running example
-3. A harness in ~N lines
-4. Code graders first
-5. Model graders and validating them
-6. Judge bias, measured
-7. Grading the path
-8. Counting: pass@k, pass^k, noise
-9. Where cases come from: offline, production, captures, suites
-10. Evals in CI
-11. Checklist
+The 2026-11-15 draft of part 1 has O5, O6 and O7 and the code half of O3. It has no O1 diagram (only the vocabulary
+list), no O2 harness listing (only "a few hundred lines"), and no O4 snippets (only the grader table).
 
-**Post 2:** the same eval in 8 tools (O22–O24).
+**The series (D3):**
+1. **Building an eval** ([blog-part-1.md](blog-part-1.md); was guide §1, §3, §4, §5): what an eval is, the running example,
+   code graders, grading the path.
+2. **LLM judges** (guide §6, §7): validating a judge against human labels; position, length and self-preference bias.
+3. **From numbers to decisions** (guide §8, plus P7 and P8): counting (pass@k, pass^k, noise, how much eval is enough),
+   production checks, captures → cases, suite lifecycle, evals in CI, and the checklist (O25).
+4. **The same eval in 8 tools** (P9, plus guide §2 and the P0 compat spike).
+
+[blog.md](blog.md) stays the working draft for parts 2–4, with its original section numbers. Its §8 opening corrects a
+§1 example that part 1 already states correctly, so reword that paragraph when part 3 is split out.
 
 ---
 
