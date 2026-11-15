@@ -480,3 +480,82 @@ Write-up with the confusion matrix, the prompt-iteration table (O8), the judge-m
 - **Pairwise on closer pairs:** the label-implied pairs are lopsided. P5's ~100 pairs of closer replies are where
   position bias gets measured.
 - **P8 nightly:** Haiku as the judge, with Opus spot checks on offers and tone.
+
+## P5: Judge bias (2026-11-15)
+
+Write-up with the position table (O11), the length table (O12) and the self-preference matrix (O13):
+[p5-bias.md](p5-bias.md).
+
+### Tried
+
+- **Frozen pairs.** `experiments/make_pairs.py` froze 200 Haiku-vs-Qwen pairs (same case, from the P2/P3 runs) and a
+  55-item human queue before any judge saw them: 50 pairs, one per case, Haiku in slot A for exactly 25, plus 5 swapped
+  repeats.
+- **Human preferences** with `scripts/prefer.py`: blind, A/B/tie plus an optional reason. No judge result was shown to the
+  labeller until all 55 were saved.
+- **Position (O11):** Sonnet judged all 200 pairs Haiku-first, Qwen-first, and Haiku-first again (the noise floor).
+  Mitigation: both orders, a flip counts as a tie.
+- **Length (O12):** two content-free pads (courtesy, restated policy) on 40 human-passed replies. Measured with pairwise
+  (reply vs its padded copy) and rubric v2, then the harmful direction: padding the 38 human-failed replies. All of it
+  repeated with an anti-length instruction written before any result.
+- **Self-preference (O13):** Sonnet, Haiku, Opus and local Qwen 9B judged the 50 human pairs in both orders. Each judge's
+  Haiku share was compared with the human's, and the Claude judges with the Qwen judge.
+- **A neutral pairwise prompt:** P4's prompt minus "Length and polish matter only after those", so the baseline doesn't
+  already tell the judge how to treat length.
+
+### Worked
+
+- **Sonnet is mostly order-consistent:** the same winner in 183/200 pairs with the order swapped, against 190/200 when the
+  same order is simply asked twice. Overall slot A wins 52% of decisive verdicts.
+- **The judges penalise content-free padding.** The padded copy of a good reply lost 80/80 comparisons, in both orders.
+  The rubric judge changed no verdict for padding, and padding rescued none of the 38 failed replies.
+- **No detectable self-preference, in either family.** Every judge's Haiku share sits within 0.06 of the human's
+  (0.85–0.95 against 0.91), all intervals including zero. The Qwen judge, which had room to favour its own family, scored
+  +0.01 [-0.07 to +0.10] toward Haiku. A cross-family panel stays at about zero excess (it had nothing to remove).
+- **Freezing everything first.** The pairs, the human queue and the human answers were all fixed before any judge number
+  was read, so none of the human choices could drift toward the judge.
+- **Cheap.** $15.88 of Claude calls for all three experiments (budget ~$20), and 33 minutes of human time.
+
+### Didn't work / had to change
+
+- **The both-orders mitigation bought little.** Against the human, opposite picks fell from 6–7 to 4 of 50, mostly by
+  abstaining. Agreement didn't rise, because the human almost never says "tie".
+- **The anti-length instruction only half did its job, and there was no length bias for it to fix.** The padded copy
+  still won 0 of 160 verdicts; 29/80 (polite) and 42/80 (policy) verdicts moved from "original" to "tie". Whether the
+  human would call those ties wasn't tested.
+- **A first-draft analysis overstated two results,** both caught before anything was written:
+  - **The position lean:** counted by verdict it was 75%; counted by pair, which is what was sampled, it is 9/11, with an
+    interval of 52–95%.
+  - **The sign test on disagreements isn't valid** when the human picks one side 45 times out of 50: a judge can only
+    differ toward the other side on those pairs. It was replaced by kappa and disagreement split by the human's pick.
+- **Qwen's output budget again.** The 5-pair pilot at 5,000 tokens truncated 1 of 10 calls. The budget went to 6,200 (the
+  largest prompt is ~1.8k of the 8,192 context), and a truncated call is retried once at a new sample index, because
+  the cache key leaves out `max_tokens`.
+
+### Surprising
+
+- **The judges agree with the human less than "always Haiku" does.** The human picked Haiku on 45 of 50, so the trivial
+  rule matches 90%. Sonnet and Opus match 76%, κ about 0; Haiku matches 86%, κ 0.32. On a lopsided set, raw agreement
+  says almost nothing.
+- **The human reversed 2 of 5 swapped repeats.** Five is far too few to compare with Sonnet's 92% over 200 pairs (3/5
+  has an interval of roughly 23–88%), but both reversals were "friendlier" picks and the factual pick held.
+- **The human's Qwen picks, where a reason was given, were for brevity or date formatting,** and Qwen's reply was the shorter one in three of
+  them. No judge picked Qwen in both orders on any of them.
+- **The self-preference test barely had room.** With the human at 0.91 Haiku share, no judge could exceed it by more than
+  0.09.
+- **Qwen judging its own replies didn't favour them.** It gave Haiku's replies a 0.93 share, against the human's 0.91, and
+  never picked its own family's reply in both orders where the human had picked Haiku. Opus is the judge most willing to
+  side with Qwen: 7 Qwen picks in both orders, all on pairs the human gave to Haiku.
+- **The local judge answered everything this time:** 50/50 pairs, against 25/40 rubric items in P4. The difference is
+  the budget (6,200 tokens instead of 4,096), with 2 of 102 calls retried after truncating.
+
+### Open / carried forward
+
+- **Self-preference with room to show:** pairs where the two families are closer in quality and length, or replies
+  rewritten to equal length, would give the test somewhere to move.
+- **Length with different content:** this phase tested filler only. Whether a longer reply with *more* (true)
+  information wins unfairly is still open.
+- **The human's own wobble** (2 of 5 repeats reversed) hints that taste calls are noisy for people too. More repeats
+  would measure it; a written tone criterion would reduce it.
+- **P6:** how many cases and trials it takes before a difference is real. The intervals here (±15 points on 50 pairs)
+  are a preview.

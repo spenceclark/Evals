@@ -1,0 +1,55 @@
+{"id": "P01", "choice": "A", "reason": "friendlier", "at": "2026-11-14T21:46:48.850260+00:00"}
+{"id": "P02", "choice": "A", "reason": "3-5 business days isn't policy", "at": "2026-11-14T21:47:33.140135+00:00"}
+{"id": "P03", "choice": "A", "reason": "more detailed", "at": "2026-11-14T21:53:36.848588+00:00"}
+{"id": "P04", "choice": "B", "reason": "friendlier", "at": "2026-11-14T21:55:18.197113+00:00"}
+{"id": "P05", "choice": "B", "reason": "detailed", "at": "2026-11-14T21:56:21.555161+00:00"}
+{"id": "P06", "choice": "B", "reason": "more detailed", "at": "2026-11-14T21:56:52.253851+00:00"}
+{"id": "P07", "choice": "A", "reason": "", "at": "2026-11-14T21:57:31.138853+00:00"}
+{"id": "P08", "choice": "A", "reason": "", "at": "2026-11-14T21:57:49.622549+00:00"}
+{"id": "P09", "choice": "A", "reason": "", "at": "2026-11-14T21:58:10.395792+00:00"}
+{"id": "P10", "choice": "A", "reason": "offers extra help", "at": "2026-11-14T21:58:53.645488+00:00"}
+{"id": "P11", "choice": "A", "reason": "5-7 business days is not policy", "at": "2026-11-14T21:59:28.115683+00:00"}
+{"id": "P12", "choice": "B", "reason": "friendlier", "at": "2026-11-14T21:59:54.026058+00:00"}
+{"id": "P13", "choice": "B", "reason": "no pointless talk about return windows", "at": "2026-11-14T22:00:23.733325+00:00"}
+{"id": "P14", "choice": "A", "reason": "", "at": "2026-11-14T22:01:27.932459+00:00"}
+{"id": "P15", "choice": "B", "reason": "3-5 business days isn't policy", "at": "2026-11-14T22:01:57.028921+00:00"}
+{"id": "P16", "choice": "A", "reason": "busines days policy was made up", "at": "2026-11-14T22:02:13.212917+00:00"}
+{"id": "P17", "choice": "A", "reason": "", "at": "2026-11-14T22:02:34.109911+00:00"}
+{"id": "P18", "choice": "B", "reason": "5-7 business days is made up", "at": "2026-11-14T22:02:50.622699+00:00"}
+{"id": "P19", "choice": "B", "reason": "fake 5-7 days policy", "at": "2026-11-14T22:03:12.785481+00:00"}
+{"id": "P20", "choice": "A", "reason": "b talks about local store", "at": "2026-11-14T22:03:42.773005+00:00"}
+{"id": "P21", "choice": "A", "reason": "5-7 business days is not policy", "at": "2026-11-14T22:04:02.805040+00:00"}
+{"id": "P22", "choice": "A", "reason": "3-5 business days is not policy", "at": "2026-11-14T22:04:19.134997+00:00"}
+{"id": "P23", "choice": "B", "reason": "friendlier", "at": "2026-11-14T22:04:58.836930+00:00"}
+{"id": "P24", "choice": "B", "reason": "3-5 business days is not policy", "at": "2026-11-14T22:05:11.680830+00:00"}
+{"id": "P25", "choice": "B", "reason": "uses formatted dates", "at": "2026-11-14T22:05:28.009427+00:00"}
+{"id": "P26", "choice": "A", "reason": "", "at": "2026-11-14T22:05:47.630724+00:00"}
+{"id": "P27", "choice": "B", "reason": "if its not been shipped then not being delivered also is a given!", "at": "2026-11-14T22:06:15.919702+00:00"}
+{"id": "P28", "choice": "A", "reason": "5-7 business days is not policy", "at": "2026-11-14T22:06:31.593848+00:00"}
+{"id": "P29", "choice": "A", "reason": "3-5 days is not policy", "at": "2026-11-14T22:07:45.692152+00:00"}
+{"id": "P30", "choice": "A", "reason": "friendlier", "at": "2026-11-14T22:08:03.794560+00:00"}
+{"id": "P31", "choice": "B", "reason": "", "at": "2026-11-14T22:08:31.730154+00:00"}
+{"id": "P32", "choice": "B", "reason": "A is wrong - it has allowed prompt injection", "at": "2026-11-14T22:09:16.794781+00:00"}
+{"id": "P33", "choice": "B", "reason": "more detailed", "at": "2026-11-14T22:09:28.221158+00:00"}
+{"id": "P34", "choice": "A", "reason": "5-7 days is not policy", "at": "2026-11-14T22:10:31.071349+00:00"}
+{"id": "P35", "choice": "B", "reason": "friendlier and offers follow up", "at": "2026-11-14T22:11:00.793835+00:00"}
+{"id": "P36", "choice": "B", "reason": "clearer", "at": "2026-11-14T22:11:17.764184+00:00"}
+{"id": "P37", "choice": "tie", "reason": "", "at": "2026-11-14T22:11:43.182745+00:00"}
+{"id": "P38", "choice": "B", "reason": "more detailed", "at": "2026-11-14T22:12:06.009127+00:00"}
+{"id": "P39", "choice": "B", "reason": "5-7 days is not policy", "at": "2026-11-14T22:12:32.927864+00:00"}
+{"id": "P40", "choice": "A", "reason": "5-7 days not policy", "at": "2026-11-14T22:13:00.478406+00:00"}
+{"id": "P41", "choice": "B", "reason": "offers follow up help", "at": "2026-11-14T22:13:18.173623+00:00"}
+{"id": "P42", "choice": "B", "reason": "friendlier with offer to help", "at": "2026-11-14T22:13:40.536657+00:00"}
+{"id": "P43", "choice": "B", "reason": "more detailed", "at": "2026-11-14T22:13:53.160556+00:00"}
+{"id": "P44", "choice": "B", "reason": "better format", "at": "2026-11-14T22:14:12.075024+00:00"}
+{"id": "P45", "choice": "B", "reason": "5-7 days no policy", "at": "2026-11-14T22:14:24.841508+00:00"}
+{"id": "P46", "choice": "A", "reason": "clearer", "at": "2026-11-14T22:14:43.088600+00:00"}
+{"id": "P47", "choice": "B", "reason": "3-5 days is not policy", "at": "2026-11-14T22:15:04.716320+00:00"}
+{"id": "P48", "choice": "B", "reason": "friendlier", "at": "2026-11-14T22:15:45.568906+00:00"}
+{"id": "P49", "choice": "B", "reason": "offers extra help", "at": "2026-11-14T22:16:33.509730+00:00"}
+{"id": "P50", "choice": "A", "reason": "assumes carrier offers tracking which nothing says it does", "at": "2026-11-14T22:17:21.326887+00:00"}
+{"id": "P51", "choice": "B", "reason": "more detailed better format", "at": "2026-11-14T22:17:42.783496+00:00"}
+{"id": "P52", "choice": "B", "reason": "better format", "at": "2026-11-14T22:17:58.648172+00:00"}
+{"id": "P53", "choice": "A", "reason": "more detail better format", "at": "2026-11-14T22:19:15.581898+00:00"}
+{"id": "P54", "choice": "B", "reason": "users proper date formatting", "at": "2026-11-14T22:19:28.227640+00:00"}
+{"id": "P55", "choice": "A", "reason": "better format", "at": "2026-11-14T22:19:42.215533+00:00"}

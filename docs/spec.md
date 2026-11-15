@@ -317,7 +317,8 @@ actually work.
   **your pairwise preferences on ~50 pairs**. Self-preference = a judge's excess win rate for its own family's outputs over the
   human baseline.
 
-**Outputs:** O11, O12, O13.
+**Outputs:** O11, O12, O13, done: [p5-bias.md](p5-bias.md). Position used 200 pairs (not ~100), and the human set is 50
+pairs plus 5 swapped repeats.
 **Done when:** each bias has a number with an interval and a tested mitigation. Bias runs use Sonnet 5.5 as the judge to save
 cost, except where the judge model itself is the variable.
 
@@ -554,6 +555,7 @@ The rates are from the claude-api skill's cached price table (2026-11-03), per m
 | P4 held-out + self-consistency + judge comparison | | ~$30 |
 | P7 lifecycle: 3 prompt versions × 60 cases × 3 trials, judged | | ~$65 |
 | Bias experiments (Sonnet 5.5 judge) | ~1,000 calls | ~$20 |
+| **Measured (P5)**: all bias experiments | 2,852 Claude calls (Sonnet, plus Haiku and Opus for self-preference); Qwen local | **$15.88** |
 | CI per PR | ~44 regression cases × 3 trials, code graders only | ~$0.30 |
 | Nightly judged run | Opus: ~$20/night; with a cheaper validated judge (O9): a few dollars | varies |
 | **Whole project, incl. iteration** | | **likely $200–300, dominated by Opus judge calls** |

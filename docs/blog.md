@@ -625,3 +625,121 @@ is good enough.
   mistake. More often it was my line that was blurry.
 - **Labelling was faster than expected,** under a minute a reply, as long as the tool puts what actually happened right
   next to the reply.
+
+## 7. Does the judge play fair? Position, length and its own family
+
+Section 1 listed three ways a judge is known to lean: toward whichever answer comes first, toward the longer answer, and
+toward output from its own model family. Zheng et al. (2023) named all three, and Panickssery et al. (2024) looked
+closely at the last one, both on general chat questions. The question here is narrower: how big are they on *this*
+task, and does the usual fix work?
+
+That needs pairs that are actually close. P4's pairs weren't: a clear failure next to a clean reply. So I froze 200 new
+pairs, each a Haiku reply and a Qwen reply to the same customer email. Both pass every outcome check from
+section 4 in 184 of the 200.
+
+### My half: 50 blind preferences
+
+Before any judge result was shown to me, I picked a winner in 50 of those pairs, with the models hidden and Haiku on the
+left exactly half the time. Five pairs came back later with the sides swapped, so I could check myself. It took 33
+minutes.
+
+I picked Haiku's reply 45 times, Qwen's 4 times, and called one a tie. All 15 pairs where Qwen invented a refund
+timeline went to Haiku. Where I gave a reason for picking Qwen's reply, it was for being shorter or formatting dates
+better ("no pointless talk about return windows").
+
+**I wasn't consistent either.** On the five swapped repeats I gave the same answer three times. Both reversals were
+first picks I'd explained as "friendlier", and the second time I preferred the plainer reply. The factual call, "3-5
+business days is not policy", held both times. Five is too few to generalise from, but the shape is plausible: facts are
+stable, taste isn't.
+
+### Position: a small lean, only on close calls
+
+Sonnet judged each of the 200 pairs three times: Haiku first, Qwen first, and Haiku first again. The third run is the
+noise floor: same question, nothing changed.
+
+| | Same winner |
+| --- | --- |
+| Same order, asked twice | 190/200 (95%) |
+| Order swapped | 183/200 (92%) |
+
+**Swapping the order costs about 7 pairs beyond plain run-to-run noise.** Overall, the first slot won 52% of decisive
+verdicts, which is no lean at all. Among the 11 pairs whose winner flipped with the order, though, the first slot won
+both times in 9. That's a lean toward whatever comes first, but only when the judge is unsure, and 11 pairs give a wide
+interval (52% to 95%).
+
+The standard fix is to ask both orders and call a disagreement a tie. Against my 50 preferences it cut "picked the
+opposite of me" from 6 or 7 pairs to 4, mostly by abstaining. It doubles the calls. With a judge this consistent, it
+buys little.
+
+### Length: the judge punished padding
+
+I took 40 replies I'd passed and padded each one in two ways that add nothing: courtesy ("Thank you so much for taking
+the time to get in touch…") or a correct restatement of the refund policy. Then I asked the judge to choose between each
+reply and its padded copy.
+
+**The padded copy lost 80 out of 80 times, in both orders.** The one-at-a-time rubric judge didn't change a single verdict
+because of padding, and padding didn't rescue any of the 38 replies I'd failed. The textbook harm, a longer but worse
+reply getting through, didn't happen here.
+
+I'd written an "ignore length" instruction before seeing any result. With it, the padded copy still never won a single
+comparison, but about a third to a half of the verdicts became ties instead of losses. The judge did what it was told,
+partly. **The fix was aimed at a bias that wasn't there.** Whether I'd also call those ties, I didn't test: I never
+compared a padded reply with its original myself.
+
+This only tests obvious filler on an otherwise identical reply. A longer reply with *different* content is the realistic
+case. That's what the next experiment has: Haiku's reply was longer in 45 of my 50 pairs.
+
+### Self-preference
+
+The worry is that a judge prefers writing that sounds like its own. Here three Claude judges were scoring Claude Haiku's
+replies against Qwen's, so they had an obvious favourite to lean toward. To tell that apart from Haiku's replies simply
+being better, the same 50 pairs also went to a judge from the other family: Qwen 9B itself, running on my GPU.
+
+| Who's judging | Share of pairs won by Haiku's reply |
+| --- | --- |
+| Me | 0.91 |
+| Sonnet | 0.90 |
+| Haiku | 0.95 |
+| Opus | 0.85 |
+| Qwen | 0.93 |
+
+**Everyone, Qwen included, preferred Haiku's replies at about the rate I did.** No judge differs from me by more than
+0.06, and every interval includes zero. The telling row is Qwen's. It was judging its own replies against Claude's, with
+plenty of room to favour them, and it didn't: it never once picked its own reply in both orders on a pair where I'd
+picked Haiku. The Claude judge most willing to side with Qwen was Opus.
+
+That's a "not detected", not a "doesn't exist":
+- **The Claude side couldn't show much.** With me at 0.91, no judge could out-Haiku me by more than 0.09. Haiku judging
+  Haiku came out highest (+0.04), inside the noise and under that +0.09 ceiling.
+- **Better and longer go together here.** Haiku's replies never invented a timeline and were longer in 45 of 50 pairs.
+  "Every judge prefers Haiku" fits "Haiku was better" and "judges like length" equally well.
+- **A 9B model may not recognise its own writing,** and recognising it is what the research ties to favouring it.
+
+A judge panel mixing both families (average the Claude judge with Qwen) landed at zero excess too. With nothing to
+remove, that only shows it does no harm.
+
+**Agreeing with me on the total isn't the same as agreeing with me pair by pair.** "Always pick Haiku" matches me on 45
+of 50. The judges matched 38 to 43. On the four pairs where I picked Qwen's reply, for being shorter or writing dates
+properly, no judge agreed with me in both orders. The judges get the overall verdict right and my particular tastes
+wrong.
+
+Qwen as a judge also redeemed itself a little. In the last section it went silent on 15 of 40 replies. Here, with more
+room to think, it answered all 50 pairs, at about 47 seconds a call.
+
+### What it cost
+
+All the bias runs together cost **$15.88** in Claude calls, plus about 84 minutes of my GPU for Qwen. The spec had budgeted
+about $20. My half was 33 minutes of clicking A or B.
+
+### Smaller lessons from this step
+
+- **A judge can match a person 82% of the time and still not be tracking them.** I picked Haiku on 45 of 50 pairs, so
+  "always Haiku" matches me 90% of the time. Kappa, which corrects for that, put Sonnet, Opus and Qwen
+  near zero and Haiku at 0.32. On a lopsided set,
+  report kappa or report nothing.
+- **Some tests can't fail.** With me at 91% Haiku, no judge could prefer Haiku by more than 9 points. Check that a
+  test has room to show the effect before reading anything into "no effect".
+- **Freeze the pairs and the human answers before any judge result is shown.** I didn't see a single judge number until
+  my 55 answers were saved. Otherwise it's too easy to drift toward the judge.
+- **Count by the thing you sampled.** Counted by verdict, the position lean looked like 75%. Counted by pair, which is
+  what was sampled, it's 9 of 11 with an interval reaching down to 52%.

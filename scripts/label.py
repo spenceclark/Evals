@@ -11,10 +11,11 @@ a reply is hidden on purpose.
 import io
 import json
 import sys
-import textwrap
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
+
+from supportdesk.display import attempt_lines, expected_line, order_line, wrap
 
 type JSON = dict[str, Any]
 
@@ -40,70 +41,14 @@ def append(path: Path, row: JSON) -> None:
         f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def wrap(text: str, indent: str = "    ") -> str:
-    return "\n".join(textwrap.fill(p, 110, initial_indent=indent, subsequent_indent=indent) for p in text.splitlines())
-
-
-def money(x: Any) -> str:
-    return "none" if x in (None, 0) else f"${float(x):.2f}"
-
-
-def order_line(o: JSON) -> str:
-    def item(i: JSON) -> str:
-        if i["kind"] != "digital":
-            return f"{i['name']} ${i['price']:.2f}"
-        return f"{i['name']} ${i['price']:.2f} (digital, {'downloaded' if i.get('downloaded') else 'not downloaded'})"
-
-    items = ", ".join(item(i) for i in o["items"])
-    when = f"{o['status']} {o['delivered_at']}" if o.get("delivered_at") else f"{o['status']}, not delivered yet"
-    return (f"{o['id']}: {when}, email {o['email']} | {items} | total ${o['total']:.2f}, "
-            f"already refunded {money(o['refunded_amount'])}")  # fmt: skip
-
-
-def result_line(name: str, result: Any) -> str:
-    if isinstance(result, dict) and "items" in result:
-        return order_line(cast(JSON, result))
-    if isinstance(result, list):
-        summary = cast(list[JSON], result)
-        return "; ".join(f"{o['id']} ({o['status']}, {', '.join(o['items'])})" for o in summary) or "no orders"
-    return json.dumps(result)[:300]
-
-
-def expected_line(e: JSON) -> str:
-    oid = e["order_id"]
-    want = {
-        "refunded": f"refund {money(e['amount'])} on {oid}",
-        "denied": f"deny the refund ({oid})",
-        "escalated": f"escalate {oid} to a human (over $200)",
-        "answered": f"answer the question ({oid})",
-        "needs_info": "ask the customer for what's missing; change nothing",
-    }[e["action"]]
-    also = [a["action"] for a in e.get("also_ok", [])]
-    return want + (f"  (also acceptable: {', '.join(also)})" if also else "")
-
-
 def show(item: JSON, n: int, total: int) -> None:
     print("\n" + "=" * 118)
-    print(f"[{n}/{total}]  {item['id']}\n\nCUSTOMER EMAIL\n{wrap(item['input'])}\n\nWHAT THE AGENT DID")
-    for m in item["messages"]:
-        if m["role"] == "assistant":
-            for c in m["tool_calls"]:
-                if c["name"] != "close_ticket":
-                    call_args: JSON = c["args"] or {}
-                    args = ", ".join(f"{v}" for v in call_args.values() if k_ok(v))
-                    print(f"    -> {c['name']}({args})")
-        elif m["role"] == "tool" and m["name"] != "close_ticket":
-            print(f"       {'ERROR: ' if m['error'] else ''}{result_line(m['name'], m['result'])}"[:400])
-    refunds = ", ".join(f"{money(r['amount'])} on {r['order_id']}" for r in item["outcome"]["refunds"]) or "none"
-    esc = ", ".join(e["order_id"] for e in item["outcome"]["escalations"]) or "none"
-    print(f"\nWHAT ACTUALLY HAPPENED   refunds: {refunds} | escalations: {esc}")
+    print(f"[{n}/{total}]  {item['id']}\n\nCUSTOMER EMAIL\n{wrap(item['input'])}\n")
+    lines = attempt_lines(item["messages"], item["outcome"], item["output"]["reply"])
+    print("\n".join(lines[:-1]))
     print(f"POLICY SAYS              {expected_line(item['expected'])}")
     print(f"AGENT RECORDED           action={item['output'].get('action')}, amount={item['output'].get('amount')}")
-    print(f"\nREPLY SENT TO THE CUSTOMER\n{wrap(item['output']['reply'])}\n")
-
-
-def k_ok(v: Any) -> bool:
-    return not (isinstance(v, str) and len(v) > 60)  # hide long free-text 'reason' args
+    print(f"\n{lines[-1]}\n")
 
 
 def label() -> None:
