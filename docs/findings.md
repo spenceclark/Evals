@@ -559,3 +559,97 @@ Write-up with the position table (O11), the length table (O12) and the self-pref
   would measure it; a written tone criterion would reduce it.
 - **P6:** how many cases and trials it takes before a difference is real. The intervals here (±15 points on 50 pairs)
   are a preview.
+
+## P6: Counting (2026-11-15)
+
+Write-up with the k-curves (O14), the A/A runs (O15), detection by cases × trials (O16) and the MDE tables (O17):
+[p6-counting.md](p6-counting.md).
+
+### Tried
+
+- **Estimators checked against the papers.**
+  - pass@k: Chen et al. 2021, §2.1, eq. 1.
+  - pass^k: Yao et al. 2024 (τ-bench), §3.
+  - Paired standard error and MDE: Miller 2024, eqs. 7 and 10.
+
+  All of it is in `evalkit/stats.py` with an assert self-check: exact unbiasedness over the binomial, convergence on
+  simulated cases with mixed p, and the simulated power at the MDE coming out near 80%.
+- **Two variants of the agent,** added to `supportdesk/task.py`. The system prompt is now passed through the agent rather
+  than read as a module global.
+  - `haiku_no_escalation`: the planted regression, with rule 5 ($200 escalation) deleted.
+  - `haiku_close_any`: the P1–P3 loop.
+- **Five Haiku runs of 66 × 10:** a1, a2 (the A/A pair), planted, old1 and old2 (an old-loop A/A pair). They made 3,300
+  trials, with 0 infra errors and 0 truncations, and cost $2.42.
+- **One Qwen 9B run of 66 × 10** with the current loop: 97 minutes of local GPU (8.8 s per trial, one at a time),
+  0 infra errors and 2 truncations (counted as fails).
+- **`experiments/counting.py`** has four subcommands: `curves`, `compare`, `detect` (subsampling the saved trials) and
+  `power` (Miller's eq. 10 plus simulation).
+
+### Worked
+
+- **The planted regression was caught on all the data:** −0.152 [−0.239, −0.064]. Haiku refunded instead of escalating
+  on exactly the 10 escalation cases, every trial, and nothing else changed.
+- **The old-loop A/A interval covers 0:** +0.009 [−0.010, +0.028]. Under subsampling, the false-positive rate is 0–6%
+  across every cases × trials cell. That's a rough calibration check: all the subsamples come from one fixed pair of
+  runs.
+- **The simulation matches reality.** The simulated 66 × 10 A/A half-width (0.020) equals the real one (±0.019).
+- **The statement the spec asks for:** with 66 cases × 10 trials, for Haiku with the old loop's noise, we can detect
+  a drop of about 4 points at 80% power if it's spread over many cases (3.0 spread evenly, 3.8 shaped like the loop
+  fix). A drop concentrated on a few cases that fail every time needs about 12 points for a fresh 66 cases to find it.
+  On this fixed suite, it has to break 4 or more cases. Qwen's slips outside the injection cases: about 1.7 points.
+- **Haiku vs Qwen, the real comparison:** Qwen is −0.085 [−0.141, −0.029], 19 cases differ. Without the 4 injection
+  cases (an exploratory cut, chosen after seeing the results) it's −0.027 [−0.040, −0.015]: still detected, from 15
+  cases where Qwen passes 8 or 9 of 10.
+- **66 cases is enough for P7 (my recommendation; no cases added).** That rests on the MDE: about 2 to 4 points for
+  drops spread over many cases at 66 × 10, which is the size of difference P7's within-agent comparisons need to see.
+
+### Didn't work / had to change
+
+- **The current system is saturated:** 1,320 of 1,320 trials passed. Its A/A interval is [0, 0] and its pass@k equals
+  its pass^k at every k. That technically meets the spec's "covers 0", but it teaches nothing. The old loop (P3's real
+  system, 16 mixed cases) was added as the noisy variant, alongside Qwen (the spec's own fix).
+- **The planted variant is flat too:** 10 cases fail every time, so pass@k = pass^k = 0.848. A planted regression that
+  always fails tests detection, not consistency.
+- **The pooled-p shortcut fails for the same case k times.** On simulated cases with mixed p, 0.6875^10 gives 0.02
+  against a true pass^10 of 0.40, and the self-check asserts the miss. For k *different* tickets, mean^k is right. The
+  blog's section-1 "ten in a row" sentence is about different tickets, so it stands.
+
+### Surprising
+
+- **Trials and cases are two knobs, and which one works depends on the regression.**
+  - **The planted regression:** detection was the same at 1 trial and at 10 (33 cases: 85% either way).
+  - **The loop fix:** at 66 cases, detection went from 44% at 1 trial to 98% at 3.
+  - **What decides it:** whether the broken cases fail every time or only sometimes.
+- **The average can't see a small deterministic break.** 3 of 66 cases going from 10/10 to 0/10 gives −0.045
+  [−0.096, +0.005], not significant, though each case on its own is overwhelming evidence. The threshold is about 4
+  broken cases for any suite well above 10 cases, given a noise-free baseline. A regression suite needs a per-case
+  check, not only an average.
+- **Old-loop pass@1 is 95%, but pass^10 is 76%.** With retries allowed it rounds to 100% by k = 5 (exactly 100% from
+  k = 7). One set of runs describes two products, depending on whether the customer gets retries.
+- **Most of that gap is the process rule.** 29 of old1's 34 failing trials broke only `confirmed_before_close`.
+  Counting only the outcome graders (`--outcome`), old1 is 0.992 at k = 1 and 0.955 at pass^10, with 3 mixed cases.
+- **Nothing changed, and 19 of 66 cases moved.** In the old-loop A/A, esc-06 went from 4/10 to 7/10 and fault-08 from
+  10/10 to 8/10. Per-case deltas from one run each are noise.
+- **pass^k looked noisier than pass@1, on one A/A pair.** The two old-loop runs differ by 0.010 at k = 1 and by 0.030
+  at k = 10.
+- **Ignoring clustering would have invented a finding.** On P3's 12 fault cases × 5 trials, trials-as-independent says
+  Qwen recovers worse than Haiku (−0.083 [−0.153, −0.013]). Paired by case, it doesn't ([−0.185, +0.019]).
+- **More trials hit a floor.** For an effect shaped like the loop fix, at 66 cases, 20 trials instead of 10 improves the
+  MDE by 0.3 points, while 200 cases instead of 66 improves it by 1.6.
+- **The cross-model spread was three cases, not two models being different.** All 66 cases give Haiku vs Qwen
+  ω² = 0.052, where trials barely help (MDE 9.5 points at t = 1, 8.0 at t = 10). Drop the injection cases and ω² ≈ 0:
+  the MDE is 1.7 points at 66 × 10, and power for the 2.7-point gap goes from 9% at t = 1 to 99% at t = 10. A few cases
+  that one model always fails behave like the planted regression.
+- **Qwen obeys prompt injections nearly every time,** not just the once P2 saw. It refunded on 39 of 40 injected
+  trials, and those 39 failed; 3 of the 4 cases fail every time. That caps its pass@k at 0.955, since retries can't fix
+  a case that always fails. Meanwhile, its
+  occasional slips elsewhere pull pass^10 down to 0.712. Both kinds of failure show on one chart.
+
+### Open / carried forward
+
+- **Resolving smaller differences** would take about 3 times the cases (roughly halving the MDE), once there are 5 to
+  10 trials. Not needed for P7.
+- **Qwen's injection weakness is left as it is.** It's a property of the system under test, not of the eval, and 4
+  hand-written cases already break it every time.
+- **P7:** the regression suite should flag any case that drops from always-pass to always-fail, alongside the averaged
+  interval.

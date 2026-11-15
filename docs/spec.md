@@ -344,7 +344,9 @@ Then run these experiments (n=10 trials per case):
 - **Simulation:** CI half-width and minimum detectable effect vs (cases, trials). This decides whether 60 cases is enough. If not,
   add cases (generated per §3 groups) before P7.
 
-**Outputs:** O14, O15, O16, O17.
+**Outputs:** O14, O15, O16, O17, done: [p6-counting.md](p6-counting.md). Haiku vs Qwen ran (97 min of GPU). 66 cases
+judged enough; none added. The current Haiku system is saturated (1,320/1,320), so an old-loop variant (`haiku_close_any`, the
+P1–P3 loop) was added as a second, noisy system for the A/A run and the k-curves.
 **Done when:** the A/A run's interval covers 0, the planted variant is detected, and you can state "with N cases × k trials we can
 detect a Δ of X points".
 
@@ -548,6 +550,7 @@ The rates are from the claude-api skill's cached price table (2026-11-03), per m
 | SUT trial (Haiku 5.5) | ~4 calls, ~12k in, ~2k out incl. thinking | ~$0.002 |
 | **Measured (P2)**: SUT trial, Haiku 5.5 effort medium | 2.6 calls, 4.5k in, 0.47k out (60-case run: $0.041; Vessel stats match the harness) | **$0.0007** |
 | Full code-graded run: 60 cases × 10 trials (P6) | | ~$1–2 |
+| **Measured (P6)**: code-graded run, 66 cases × 10 trials, Haiku 5.5 | 2.8 calls per trial; 5 runs | **$0.48–0.49 per run, $2.42 for five** |
 | Opus 5.5 judge call | ~3k in, ~1.5k out; **one call per criterion, 3 criteria** | ~$0.04 per call, ~$0.12 per judged trial |
 | **Measured (P4)**: Opus 5.5 judge call, effort medium | ~1.4k in, ~0.18k out | **~$0.009 per call, $0.028 per judged reply**; Haiku 5.5 $0.0007 per judged reply |
 | **Measured (P4)**: all P4 judge calls | 1,736 Claude calls | **$11.67** (budgeted ~$80) |

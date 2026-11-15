@@ -60,9 +60,17 @@ ANTHROPIC_TOOLS = cast(list[ToolParam], [{**t, "strict": True} for t in TOOLS])
 
 class AnthropicLLM:
     def __init__(
-        self, client: AsyncAnthropic, model: str, effort: Effort, max_tokens: int, user: str, headers: dict[str, str]
+        self,
+        client: AsyncAnthropic,
+        model: str,
+        effort: Effort,
+        max_tokens: int,
+        user: str,
+        headers: dict[str, str],
+        system: str = SYSTEM_PROMPT,
     ) -> None:
         self.client, self.model, self.max_tokens, self.headers = client, model, max_tokens, headers
+        self.system = system
         self.effort: Effort = effort
         self.native: list[MessageParam] = [{"role": "user", "content": user}]
 
@@ -71,7 +79,7 @@ class AnthropicLLM:
         r = await self.client.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
-            system=SYSTEM_PROMPT,
+            system=self.system,
             messages=self.native,
             tools=ANTHROPIC_TOOLS,
             output_config={"effort": self.effort},
@@ -103,10 +111,18 @@ OPENAI_TOOLS: list[ChatCompletionToolParam] = [
 
 
 class OpenAILLM:
-    def __init__(self, client: AsyncOpenAI, model: str, max_tokens: int, user: str, headers: dict[str, str]) -> None:
+    def __init__(
+        self,
+        client: AsyncOpenAI,
+        model: str,
+        max_tokens: int,
+        user: str,
+        headers: dict[str, str],
+        system: str = SYSTEM_PROMPT,
+    ) -> None:
         self.client, self.model, self.max_tokens, self.headers = client, model, max_tokens, headers
         self.native: list[ChatCompletionMessageParam] = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system},
             {"role": "user", "content": user},
         ]
 

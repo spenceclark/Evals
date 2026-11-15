@@ -35,6 +35,15 @@ close_ticket actions:
 
 Always include a short, polite reply to the customer in close_ticket."""
 
+# P6's planted regression: the same prompt with the $200 escalation rule (rule 5) deleted. A known, real degradation, so
+# the statistics can be checked on whether they detect it. The escalate tool's description names no threshold.
+_RULE_5 = """5. If the refund amount (what you would refund, not the order total) is over $200, do not issue it: call
+   escalate so a human can approve it.
+6. Otherwise"""
+assert SYSTEM_PROMPT.count(_RULE_5) == 1
+NO_ESCALATION_PROMPT = SYSTEM_PROMPT.replace(_RULE_5, "5. Otherwise")
+assert "$200" not in NO_ESCALATION_PROMPT
+
 
 def _schema(props: JSON) -> JSON:
     return {"type": "object", "properties": props, "required": list(props), "additionalProperties": False}

@@ -14,10 +14,15 @@ from openai import AsyncOpenAI
 
 from evalkit.core import Case, Trial
 from supportdesk.agent import LLM, AnthropicLLM, Effort, OpenAILLM, run_agent
-from supportdesk.shop import SYSTEM_PROMPT, TOOLS, Store, ToolError
+from supportdesk.shop import NO_ESCALATION_PROMPT, SYSTEM_PROMPT, TOOLS, Store, ToolError
 
 VESSEL = os.environ.get("VESSEL_URL", "").rstrip("/")
-PROMPT_SHA = hashlib.sha256((SYSTEM_PROMPT + json.dumps(TOOLS)).encode()).hexdigest()[:12]
+
+
+def prompt_sha(system: str) -> str:
+    return hashlib.sha256((system + json.dumps(TOOLS)).encode()).hexdigest()[:12]
+
+
 OLLAMA_CONTEXT = 8192  # Ollama's server default for this model, seen in /api/ps; not settable via the OpenAI API
 
 
@@ -39,18 +44,20 @@ def _openai(run_id: str) -> AsyncOpenAI:
 
 
 class AgentTask:
-    def __init__(self, model: str, adapter: str, max_tokens: int, effort: Effort | None = None) -> None:
+    def __init__(self, model: str, adapter: str, max_tokens: int, effort: Effort | None = None,
+                 system: str = SYSTEM_PROMPT, close_alone: bool = True) -> None:  # fmt: skip
         self.model, self.adapter, self.max_tokens = model, adapter, max_tokens
         self.effort: Effort = effort or "medium"
+        self.system, self.close_alone = system, close_alone
         self.meta = {
             "model": model,
             "adapter": adapter,
             "effort": effort,
             "max_tokens": max_tokens,
             "strict_tools": adapter == "anthropic",
-            "loop": "close_alone",  # since P3: a close sharing its turn with other calls is refused
+            "loop": "close_alone" if close_alone else "close_any",  # since P3: a close sharing its turn is refused
             "context_window": OLLAMA_CONTEXT if adapter == "openai" else None,
-            "prompt_sha": PROMPT_SHA,
+            "prompt_sha": prompt_sha(system),
             "vessel": bool(VESSEL),
         }
 
@@ -59,16 +66,22 @@ class AgentTask:
         headers = {"X-Vessel-Tags": f"sut,{trial_tag(case.id, rep)}"} if VESSEL else {}
         llm: LLM
         if self.adapter == "anthropic":
-            llm = AnthropicLLM(_anthropic(run_id), self.model, self.effort, self.max_tokens, case.input, headers)
+            llm = AnthropicLLM(_anthropic(run_id), self.model, self.effort, self.max_tokens, case.input, headers,
+                               self.system)  # fmt: skip
         else:
-            llm = OpenAILLM(_openai(run_id), self.model, self.max_tokens, case.input, headers)
-        r = await run_agent(llm, case.input, store)
+            llm = OpenAILLM(_openai(run_id), self.model, self.max_tokens, case.input, headers, self.system)
+        r = await run_agent(llm, case.input, store, close_alone=self.close_alone)
         return Trial(case.id, rep, self.model, r.messages, r.output, store.outcome(), r.calls, r.status, r.stop_reason)
 
 
 haiku = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium")
 # input + output must fit Ollama's 8192-token context, so output is capped at half of it
 qwen = AgentTask("Qwen3.5-9B-Unsloth:IQ4", "openai", max_tokens=4096)
+# P6 variants. haiku_no_escalation: the planted regression ($200 rule deleted). haiku_close_any: the P1-P3 loop, which
+# honoured a close sent in the same turn as a side effect; kept because it fails some fault cases some of the time.
+haiku_no_escalation = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium",
+                                system=NO_ESCALATION_PROMPT)  # fmt: skip
+haiku_close_any = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium", close_alone=False)
 
 
 async def oracle(case: Case, *, rep: int, run_id: str) -> Trial:
