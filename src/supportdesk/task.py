@@ -4,6 +4,7 @@ Vessel is on when VESSEL_URL is set (e.g. http://127.0.0.1:4550): one Vessel ses
 `sut` and `trial-<case_id>-<rep>`, so every capture can be joined back to its trial.
 """
 
+import asyncio
 import hashlib
 import json
 import os
@@ -39,14 +40,16 @@ def trial_tag(case_id: str, rep: int) -> str:
     return f"trial-{case_id}-{rep}"
 
 
+# Cached per run and per event loop: an async client is bound to the loop it first ran on (P9's frameworks may each
+# bring their own loop). The cache holds the loop, so a later loop can never be mistaken for it.
 @cache
-def _anthropic(run_id: str) -> AsyncAnthropic:
+def _anthropic(run_id: str, loop: asyncio.AbstractEventLoop) -> AsyncAnthropic:
     headers = {"X-Vessel-Session": run_id} if VESSEL else {}
     return AsyncAnthropic(base_url=f"{VESSEL}/b/anthropic" if VESSEL else None, default_headers=headers)
 
 
 @cache
-def _openai(run_id: str) -> AsyncOpenAI:
+def _openai(run_id: str, loop: asyncio.AbstractEventLoop) -> AsyncOpenAI:
     base = f"{VESSEL}/b/ollama/v1" if VESSEL else "http://127.0.0.1:11434/v1"
     headers = {"X-Vessel-Session": run_id} if VESSEL else {}
     return AsyncOpenAI(base_url=base, api_key="ollama", default_headers=headers)
@@ -74,11 +77,12 @@ class AgentTask:
         store = Store(case.faults)
         headers = {"X-Vessel-Tags": f"sut,{trial_tag(case.id, rep)}"} if VESSEL else {}
         llm: LLM
+        loop = asyncio.get_running_loop()  # the key, not its id: ids of closed loops get reused
         if self.adapter == "anthropic":
-            llm = AnthropicLLM(_anthropic(run_id), self.model, self.effort, self.max_tokens, case.input, headers,
+            llm = AnthropicLLM(_anthropic(run_id, loop), self.model, self.effort, self.max_tokens, case.input, headers,
                                self.system)  # fmt: skip
         else:
-            llm = OpenAILLM(_openai(run_id), self.model, self.max_tokens, case.input, headers, self.system)
+            llm = OpenAILLM(_openai(run_id, loop), self.model, self.max_tokens, case.input, headers, self.system)
         r = await run_agent(llm, case.input, store, close_alone=self.close_alone)
         return Trial(case.id, rep, self.model, r.messages, r.output, store.outcome(), r.calls, r.status, r.stop_reason)
 
