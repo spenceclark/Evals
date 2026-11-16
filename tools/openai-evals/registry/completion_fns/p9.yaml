@@ -1,0 +1,14 @@
+# P9. The system under test: supportdesk.run (the shipped refund-desk agent on Haiku 5.5), as a completion fn.
+supportdesk-haiku:
+  class: supportdesk_fn:SupportdeskCompletionFn
+  args:
+    run_id: p9-openai-evals  # labels the trials; also the Vessel session when VESSEL_URL is set
+
+# The judge: rubric v2's model, at P4's effort. Last completion fn on the oaieval command line = the judge.
+claude-haiku-5-5-judge:
+  class: claude_fn:ClaudeCompletionFn
+  args:
+    model: claude-haiku-5-5
+    base_url: http://127.0.0.1:4550/b/anthropic/t/p9-openai-evals
+    session: p9-openai-evals
+    effort: medium
