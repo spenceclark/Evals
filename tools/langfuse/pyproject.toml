@@ -3,6 +3,7 @@ name = "spike-langfuse"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
+    "evals",
     "langfuse>=5.2.0",
 ]
 
@@ -12,3 +13,6 @@ typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 venvPath = "."
 venv = ".venv"
+
+[tool.uv.sources]
+evals = { path = "../../", editable = true }
