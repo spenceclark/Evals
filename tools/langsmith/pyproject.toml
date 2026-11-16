@@ -3,9 +3,10 @@ name = "spike-langsmith"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
+    "evals",
     "langchain-anthropic>=1.7.10",
     "langsmith>=0.14.17",
-    "openevals>=0.2.2",
+    "openevals>=0.2.5",
 ]
 
 [tool.pyright]
@@ -14,3 +15,6 @@ typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 venvPath = "."
 venv = ".venv"
+
+[tool.uv.sources]
+evals = { path = "../../", editable = true }
