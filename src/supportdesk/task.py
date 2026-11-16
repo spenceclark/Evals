@@ -14,7 +14,16 @@ from openai import AsyncOpenAI
 
 from evalkit.core import Case, Trial
 from supportdesk.agent import LLM, AnthropicLLM, Effort, OpenAILLM, run_agent
-from supportdesk.shop import NO_ESCALATION_PROMPT, SYSTEM_PROMPT, TOOLS, V1_PROMPT, V3_PROMPT, Store, ToolError
+from supportdesk.shop import (
+    NO_ESCALATION_PROMPT,
+    SYSTEM_PROMPT,
+    TOOLS,
+    V1_PROMPT,
+    V2_PROMPT,
+    V3_PROMPT,
+    Store,
+    ToolError,
+)
 
 VESSEL = os.environ.get("VESSEL_URL", "").rstrip("/")
 
@@ -74,6 +83,7 @@ class AgentTask:
         return Trial(case.id, rep, self.model, r.messages, r.output, store.outcome(), r.calls, r.status, r.stop_reason)
 
 
+# haiku runs the shipped prompt (system_prompt.txt): v2 until P7, v3 from P8. CI gates this task.
 haiku = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium")
 # input + output must fit Ollama's 8192-token context, so output is capped at half of it
 qwen = AgentTask("Qwen3.5-9B-Unsloth:IQ4", "openai", max_tokens=4096)
@@ -82,9 +92,10 @@ qwen = AgentTask("Qwen3.5-9B-Unsloth:IQ4", "openai", max_tokens=4096)
 haiku_no_escalation = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium",
                                 system=NO_ESCALATION_PROMPT)  # fmt: skip
 haiku_close_any = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium", close_alone=False)
-# P7 lifecycle: v1 (a first draft: an ablation of the current prompt), v2 = haiku (the current prompt), v3 (v2 plus the
-# fix for what the monitor found in simulated traffic).
+# P7 lifecycle, frozen: v1 (a first draft: an ablation of v2), v2 (what `haiku` ran in P1-P7), v3 (v2 plus the fix
+# for what the monitor found in simulated traffic; shipped in P8, so the same prompt as `haiku` for now).
 haiku_v1 = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium", system=V1_PROMPT)
+haiku_v2 = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium", system=V2_PROMPT)
 haiku_v3 = AgentTask("claude-haiku-5-5", "anthropic", max_tokens=8000, effort="medium", system=V3_PROMPT)
 
 

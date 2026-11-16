@@ -7,7 +7,8 @@ Code:
 - The traffic generator and runner: [scripts/simulate_traffic.py](../scripts/simulate_traffic.py).
 - The monitor, inbox, labelling and promotion: [scripts/captures_to_cases.py](../scripts/captures_to_cases.py).
 - The lifecycle runs and graduation: [scripts/lifecycle.py](../scripts/lifecycle.py).
-- The prompt versions: [src/supportdesk/shop.py](../src/supportdesk/shop.py) (`V1_PROMPT`, `SYSTEM_PROMPT`, `V3_PROMPT`).
+- The prompt versions: [src/supportdesk/shop.py](../src/supportdesk/shop.py) (`V1_PROMPT`, `V2_PROMPT`, `V3_PROMPT`). Until P8, v2
+  was `SYSTEM_PROMPT` and ran as `haiku`. P8 shipped v3, so `haiku` now runs v3 and v2 is `haiku_v2`.
 
 The data is in `cases/traffic/` (the 210 messages and their facts), `cases/captured.jsonl` (the 20 labelled captures)
 and `runs/p7/` (gitignored).
@@ -17,7 +18,7 @@ and `runs/p7/` (gitignored).
 | Version | What it is | Agent |
 | --- | --- | --- |
 | v1 | A plausible first draft: v2 without rule 1 (the sender must match the order; ask, never guess) and without "look up the order before deciding". An ablation, not a prompt that ever shipped. | `haiku_v1` |
-| v2 | The prompt P1–P6 ran: `SYSTEM_PROMPT`. | `haiku` |
+| v2 | The prompt P1–P6 ran: `V2_PROMPT` (`SYSTEM_PROMPT` until P8). | `haiku_v2` (`haiku` until P8) |
 | v3 | v2 plus one rule, taken from the owner's labels on captured traffic: refunds only for whole items or whole orders, so a partial or compensation amount is denied. | `haiku_v3` |
 
 All three run on Haiku 5.5. Qwen isn't used in P7.

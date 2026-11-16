@@ -23,7 +23,7 @@ type JSON = dict[str, Any]
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "runs" / "p7" / "lifecycle"
 FULL, CAPTURED = ROOT / "cases" / "full.jsonl", ROOT / "cases" / "captured.jsonl"
-VERSIONS = {"v1": "haiku_v1", "v2": "haiku", "v3": "haiku_v3"}
+VERSIONS = {"v1": "haiku_v1", "v2": "haiku_v2", "v3": "haiku_v3"}  # v2 ran as `haiku` before P8 shipped v3
 
 # Pre-registered (written before any lifecycle trial).
 TRIALS = 10

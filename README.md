@@ -11,13 +11,14 @@ The plan is in [docs/spec.md](docs/spec.md). What each phase found is in [docs/f
 | Path | What's there |
 | --- | --- |
 | `src/evalkit/` | A small harness: cases, trials, graders, runs, regrading, model judges, and the statistics (pass@k, pass^k, paired intervals, MDE). |
-| `src/supportdesk/` | The system under test (shop, policy prompt, tools, agent loop) and its graders: outcome, path, recovery, production checks and judges. |
+| `src/supportdesk/` | The system under test (shop, tools, agent loop) and its graders: outcome, path, recovery, production checks and judges. The shipped prompt is `system_prompt.txt`. |
 | `cases/` | `full.jsonl` (66 generated cases), `captured.jsonl` (20 from simulated traffic), the traffic itself, and the human labels. |
-| `scripts/` | Case generation, labelling, judge validation, simulated traffic, the production monitor, and the suite lifecycle. |
+| `scripts/` | Case generation, labelling, judge validation, simulated traffic, the production monitor, the suite lifecycle, and the CI gate (`ci.py`). |
+| `ci/`, `.github/workflows/` | The CI baseline seed, the PR gate (`evals.yml`) and the nightly report (`evals-nightly.yml`). |
 | `experiments/` | Judge bias (position, length, self-preference) and counting. |
 | `tools/` | The same eval in other frameworks. |
 | `tests/` | Plain scripts; each prints an `ok:` line. |
-| `docs/` | One write-up per phase (`p0-…` to `p7-…`), the findings log, the spec and the blog drafts. |
+| `docs/` | One write-up per phase (`p0-…` to `p8-…`), the findings log, the spec and the blog drafts. |
 | `runs/` | Run output (gitignored). |
 
 ## Running it
@@ -43,6 +44,14 @@ uv run pyright
 for t in tests/test_*.py; do uv run python "$t"; done
 ```
 
+CI runs the same checks on every pull request that touches `src/`, `cases/` or the gate, then the regression suite
+(62 cases, 3 trials each) on the shipped prompt. It fails if the trial pass rate drops below 95%, or if a case that
+always passed on main now always fails. To run the gate locally:
+
+```bash
+uv run python scripts/ci.py pr
+```
+
 ## The phases
 
 | Phase | Topic | Write-up |
@@ -55,3 +64,4 @@ for t in tests/test_*.py; do uv run python "$t"; done
 | P5 | Judge bias | [p5-bias.md](docs/p5-bias.md) |
 | P6 | Counting: pass@k, pass^k, noise | [p6-counting.md](docs/p6-counting.md) |
 | P7 | Production checks, captures → cases, suite lifecycle | [p7-production.md](docs/p7-production.md) |
+| P8 | CI: what gates a merge, and what only reports | [p8-ci.md](docs/p8-ci.md) |

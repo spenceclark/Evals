@@ -296,7 +296,7 @@ async def gen(n: int, seed: int) -> None:
 
 def run(prompt: str, session: str, limit: int | None) -> None:
     assert task.VESSEL, "set VESSEL_URL: the monitor reads Vessel's captures"
-    agent = cast(task.AgentTask, getattr(task, {"v1": "haiku_v1", "v2": "haiku", "v3": "haiku_v3"}[prompt]))
+    agent = cast(task.AgentTask, getattr(task, {"v1": "haiku_v1", "v2": "haiku_v2", "v3": "haiku_v3"}[prompt]))
     msgs = [json.loads(line) for line in (OUT / "messages.jsonl").read_text(encoding="utf-8").splitlines()]
     cases = [Case(m["id"], m["input"], expected={}, source="traffic") for m in msgs[:limit]]
     run_dir = ROOT / "runs" / "p7" / session

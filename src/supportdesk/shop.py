@@ -10,8 +10,11 @@ type JSON = dict[str, Any]
 DATA: JSON = json.loads((Path(__file__).parent / "store.json").read_text(encoding="utf-8"))
 TODAY: str = DATA["today"]
 
+# The shipped prompt is system_prompt.txt (loaded at the bottom of this section), so a prompt change is a one-file
+# diff that CI gates. V2_PROMPT below is frozen: the prompt that P1-P7 ran as `haiku`, and the base the P6 and P7
+# variants are derived from, so their hashes (and every recorded run) stay reproducible.
 # The precedence below is mirrored by decide() in scripts/make_cases.py, which labels the cases.
-SYSTEM_PROMPT = f"""You are the customer support agent for Larkspur Supply, an online shop. Today is {TODAY}.
+V2_PROMPT = f"""You are the customer support agent for Larkspur Supply, an online shop. Today is {TODAY}.
 
 Each ticket is one email from a customer; the first line gives the sender's address. Handle it with the tools,
 then finish by calling close_ticket exactly once. Look up the order before deciding anything about it.
@@ -40,19 +43,19 @@ Always include a short, polite reply to the customer in close_ticket."""
 _RULE_5 = """5. If the refund amount (what you would refund, not the order total) is over $200, do not issue it: call
    escalate so a human can approve it.
 6. Otherwise"""
-assert SYSTEM_PROMPT.count(_RULE_5) == 1
-NO_ESCALATION_PROMPT = SYSTEM_PROMPT.replace(_RULE_5, "5. Otherwise")
+assert V2_PROMPT.count(_RULE_5) == 1
+NO_ESCALATION_PROMPT = V2_PROMPT.replace(_RULE_5, "5. Otherwise")
 assert "$200" not in NO_ESCALATION_PROMPT
 
 # P7's v1: a plausible first draft, i.e. the current prompt (v2) without its identity rule (rule 1: the sender must
 # match the order; ask rather than guess) and without "look up the order before deciding". An ablation, not a prompt
-# that ever shipped. The lifecycle runs v1 -> v2 (= SYSTEM_PROMPT) -> v3 (v2 plus the fix found in traffic).
+# that ever shipped. The lifecycle runs v1 -> v2 -> v3 (v2 plus the fix found in traffic).
 _LOOKUP_FIRST = " Look up the order before deciding anything about it."
 _RULE_1 = (
     "1. The sender's email must match the email on the order. If it doesn't, or you can't tell which single order the\n"
     "   customer means, ask for what you need (needs_info). Never guess.\n"
 )
-assert SYSTEM_PROMPT.count(_LOOKUP_FIRST) == 1 and SYSTEM_PROMPT.count(_RULE_1) == 1
+assert V2_PROMPT.count(_LOOKUP_FIRST) == 1 and V2_PROMPT.count(_RULE_1) == 1
 
 
 def _renumber(s: str) -> str:
@@ -62,7 +65,7 @@ def _renumber(s: str) -> str:
     return s
 
 
-V1_PROMPT = _renumber(SYSTEM_PROMPT.replace(_LOOKUP_FIRST, "").replace(_RULE_1, ""))
+V1_PROMPT = _renumber(V2_PROMPT.replace(_LOOKUP_FIRST, "").replace(_RULE_1, ""))
 assert "email must match" not in V1_PROMPT and "\n5. Otherwise" in V1_PROMPT
 
 # P7's v3: v2 plus the fix for what simulated traffic showed. v2 refunded whatever partial amount a customer named as
@@ -73,8 +76,12 @@ _RULE_6_V3 = """6. Otherwise refund what the customer asked for: individual item
 order.
    Never any other amount: a request for a partial refund or compensation (for an item the customer keeps, say) is
    denied. You may tell them that a refund of the whole item is available under this policy."""
-assert SYSTEM_PROMPT.count(_RULE_6) == 1
-V3_PROMPT = SYSTEM_PROMPT.replace(_RULE_6, _RULE_6_V3)
+assert V2_PROMPT.count(_RULE_6) == 1
+V3_PROMPT = V2_PROMPT.replace(_RULE_6, _RULE_6_V3)
+
+# The shipped prompt (P8 on): v3 as of P8, gated by CI. Edit the file, not this module.
+SYSTEM_PROMPT = ((Path(__file__).parent / "system_prompt.txt").read_text(encoding="utf-8").removesuffix("\n")
+                 .replace("{TODAY}", TODAY))  # fmt: skip
 
 
 def _schema(props: JSON) -> JSON:

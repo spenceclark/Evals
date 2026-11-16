@@ -3,7 +3,7 @@
     uv run python scripts/make_cases.py
 
 Writes src/supportdesk/store.json, cases/full.jsonl (60 cases) and cases/slice.jsonl (10 of them).
-Every label comes from decide(), an independent copy of the policy in supportdesk.shop.SYSTEM_PROMPT, and each
+Every label comes from decide(), an independent copy of the policy in supportdesk.shop.V2_PROMPT, and each
 group asserts that decide() gives the group's intended action, so a construction mistake fails loudly here.
 """
 

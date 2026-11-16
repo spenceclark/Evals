@@ -40,7 +40,7 @@ from supportdesk.checks import LABEL_FREE, guardrail_fired, outcome_from
 from supportdesk.display import order_line, wrap
 from supportdesk.judges import V2, rubric, view
 from supportdesk.roundtrip import comparable, parse_anthropic, parse_openai
-from supportdesk.shop import DATA, SYSTEM_PROMPT, V3_PROMPT
+from supportdesk.shop import DATA, SYSTEM_PROMPT, V2_PROMPT, V3_PROMPT
 
 type JSON = dict[str, Any]
 
@@ -115,7 +115,7 @@ async def monitor(session: str, dry: bool = False) -> None:
     # The judge grades against the policy the business wants at the time. v1 and v2 traffic ran before the owner's
     # labels added the whole-items rule, so they are judged on v2's text; v3 traffic on v3's.
     task_name = json.loads((run_dir / "meta.json").read_text(encoding="utf-8"))["task"]
-    policy = V3_PROMPT if task_name.endswith(":v3") else SYSTEM_PROMPT
+    policy = V3_PROMPT if task_name.endswith(":v3") else V2_PROMPT  # the v1/v2 traffic was judged against v2
     judge = Judge(ROOT / "runs" / "p7" / "judge-cache.jsonl", AsyncAnthropic())  # direct: not part of the session
     rows: list[JSON] = []
     exact = 0

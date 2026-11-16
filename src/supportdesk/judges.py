@@ -15,7 +15,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from evalkit.judge import Asked, Judge, JudgeModel, render
-from supportdesk.shop import SYSTEM_PROMPT
+from supportdesk.shop import V2_PROMPT
 
 type JSON = dict[str, Any]
 
@@ -100,9 +100,10 @@ def describe_answer(e: JSON) -> str:
     return want + (f" (also acceptable: {', '.join(also)})" if also else "")
 
 
-def view(item: JSON, reply: str | None = None, policy: str = SYSTEM_PROMPT) -> dict[str, str]:
+def view(item: JSON, reply: str | None = None, policy: str = V2_PROMPT) -> dict[str, str]:
     """The whitelist of what a judge may see about one labelled item. `reply` overrides the reply (known negatives).
-    `policy` is the shop's policy as the business means it, not necessarily the prompt the agent ran with (P7)."""
+    `policy` is the shop's policy as the business means it, not necessarily the prompt the agent ran with (P7). It
+    defaults to v2, the policy the P4-P5 judges were validated against; judging current traffic, pass SYSTEM_PROMPT."""
     lines: list[str] = []
     for m in item["messages"]:
         if m["role"] == "assistant":

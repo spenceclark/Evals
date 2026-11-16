@@ -1,0 +1,77 @@
+# P8: the eval gate on pull requests. The regression suite on the shipped prompt, 3 trials per case, code + path graders.
+# Fails when the trial pass rate drops below 95% or a case that always passed on main now always fails (scripts/ci.py).
+# pull_request (never pull_request_target): PRs from forks get no secret, and the gate says so and fails.
+name: evals
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "cases/**"
+      - "ci/**"
+      - "scripts/ci.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/evals.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read # to fetch the latest nightly baseline
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.14"
+          enable-cache: true
+      - run: uv sync --locked
+
+      - name: Lint and types
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+          uv run pyright
+      - name: Tests (no model calls)
+        run: for t in tests/test_*.py; do uv run python "$t"; done
+
+      - name: Baseline (latest successful nightly on main, else the committed seed)
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          id=$(gh run list -R "$GITHUB_REPOSITORY" -w evals-nightly.yml -b main -s success -L 1 \
+                 --json databaseId --jq '.[0].databaseId // empty')
+          if [ -n "$id" ] && gh run download "$id" -R "$GITHUB_REPOSITORY" -n baseline -D nightly-baseline; then
+            echo "path=nightly-baseline/baseline.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=ci/baseline.json" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Eval gate
+        if: env.ANTHROPIC_API_KEY != ''
+        run: uv run python scripts/ci.py pr --baseline "${{ steps.baseline.outputs.path }}" --out runs/ci/pr
+      - name: No API key
+        if: env.ANTHROPIC_API_KEY == ''
+        run: |
+          echo "## Eval gate: not run (no ANTHROPIC_API_KEY, e.g. a PR from a fork). A maintainer must run it." \
+            >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: runs
+          path: runs/
+          if-no-files-found: ignore
+          retention-days: 30
