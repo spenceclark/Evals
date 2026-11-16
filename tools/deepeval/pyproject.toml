@@ -5,6 +5,8 @@ requires-python = ">=3.14"
 dependencies = [
     "anthropic>=2.8.0",
     "deepeval>=4.3.4",
+    "evals",
+    "portalocker[win32]>=4.4.2",
 ]
 
 # Own pyright config so `uv run --with pyright pyright` here uses this venv, not the root one.
@@ -14,3 +16,8 @@ typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 venvPath = "."
 venv = ".venv"
+
+[tool.uv.sources]
+evals = { path = "../../", editable = true }
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
