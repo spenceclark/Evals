@@ -777,3 +777,56 @@ Write-up with the gate, its noise and the CI runs (O21): [p8-ci.md](p8-ci.md).
   to the committed seed once the last nightly artifact expires (90 days).
 - **The judge reports to nobody.** Its disagreements show in the nightly summary, and no one reads that by default.
 - Carried from P7: multi-issue `close_ticket`; the Vessel FK bug report.
+
+## P9: The same eval in eight tools (2026-11-16)
+
+Write-up with the results, the side-by-side grader (O23) and the cross-tool findings: [p9-tools.md](p9-tools.md).
+The comparison table (O22) is spec §6. Each port's record: `tools/<tool>/P9.md`.
+
+### Tried
+
+- **A shared base:** `supportdesk.run`/`arun` as the one entry point, a frozen 10-case slice, a reference run from our
+  harness (30/30/28), and a contract every port followed (`tools/p9/README.md`).
+- **Eight ports,** each in its own session and worktree from the same brief: Inspect, Pydantic Evals, DeepEval,
+  Promptfoo and OpenAI Evals in parallel; Braintrust, LangSmith and Langfuse (cloud, EU) one at a time, twice each.
+- **The same three graders in each tool's own idiom:** action (code), rubric v2 (Haiku judge), path (trajectory).
+
+### Worked
+
+- **Every tool can run an outside agent and grade it.** Action and path were 30/30 in every port, on every run, and
+  agree trial for trial with the reference functions.
+- **Every port got P4's judge prompt across,** byte for byte in several (OpenAI Evals, LangSmith, Braintrust's user
+  block), checked against what was sent or stored.
+- **Cheap:** about $1 for all eight, $0.04–0.07 per run.
+- **Parallel sessions from one written contract** gave comparable records with the same headings, in an afternoon.
+
+### Didn't work / had to change
+
+- **The sync entry point hung after an async call.** The agent's API client was cached across event loops. Clients are
+  now cached per loop (keyed by the loop object, not its id, which gets reused).
+- **No framework sees an outside agent's tool calls.** Every port replayed or converted the transcript. Pydantic Evals'
+  span checks passed vacuously without it.
+- **DeepEval's judge:** 20/26 with 4 unparsed verdicts, from G-Eval's framing and no structured output for Haiku 5.5.
+- **Promptfoo sends `temperature` to Haiku 5.5** (rejected); its strip list knows Opus 5.5, not Haiku.
+- **OpenAI Evals:** only the 2023 release installs on 3.14; its package name (`evals`) collides with this repo's.
+- **The UI-only parts** (working an annotation queue, server-side judges, GitHub Actions) were created or read, not run.
+
+### Surprising
+
+- **The tools differ least where you'd expect most.** The code graders port identically everywhere; all the variation is
+  the judge, and run-to-run noise (27 then 29 on the same setup) is as large as the difference between tools.
+- **Every hosted platform averages a human score with the judge's.** A correction becomes one more sample (a 1 and a 0
+  show as 0.5), not an override.
+- **The hosted comparisons don't fit k>1.** Braintrust flags "regressions" between identical reruns, LangSmith's stats
+  lagged ~14 minutes, and Langfuse's comparison view shows only one of each case's three trials.
+- **Uploads are much bigger than results:** 2–5 MB per 30-trial experiment, with the system prompt 75 times, plus one
+  stray detail each (the Windows username, request headers and env vars, the public key).
+- **Defaults route through the vendor:** Braintrust's judge library uses Braintrust's AI gateway unless given a client.
+- **Only Inspect computes pass@k/pass^k.** Two tools have no repeats at all.
+
+### Open / carried forward
+
+- **Langfuse's annotation queue:** does a queue score stay out of the `rubric` average? Score one trial in `p9-review`.
+- **Server-side judges** (all three hosted) need a stored model key: untested by choice.
+- **Part 4** of the blog is now unblocked: the table, the side-by-side grader and the cross-tool findings.
+- Carried from P7: multi-issue `close_ticket` (decided: leave as a tool limit).

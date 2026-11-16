@@ -16,9 +16,9 @@ The plan is in [docs/spec.md](docs/spec.md). What each phase found is in [docs/f
 | `scripts/` | Case generation, labelling, judge validation, simulated traffic, the production monitor, the suite lifecycle, and the CI gate (`ci.py`). |
 | `ci/`, `.github/workflows/` | The CI baseline seed, the PR gate (`evals.yml`) and the nightly report (`evals-nightly.yml`). |
 | `experiments/` | Judge bias (position, length, self-preference) and counting. |
-| `tools/` | The same eval in other frameworks. |
+| `tools/` | The same eval in eight frameworks: the P0 spike (`NOTES.md`) and the P9 port (`P9.md`) per tool, and the shared slice in `tools/p9/`. |
 | `tests/` | Plain scripts; each prints an `ok:` line. |
-| `docs/` | One write-up per phase (`p0-…` to `p8-…`), the findings log, the spec and the blog drafts. |
+| `docs/` | One write-up per phase (`p0-…` to `p9-…`), the findings log, the spec and the blog drafts. |
 | `runs/` | Run output (gitignored). |
 
 ## Running it
@@ -65,3 +65,4 @@ uv run python scripts/ci.py pr
 | P6 | Counting: pass@k, pass^k, noise | [p6-counting.md](docs/p6-counting.md) |
 | P7 | Production checks, captures → cases, suite lifecycle | [p7-production.md](docs/p7-production.md) |
 | P8 | CI: what gates a merge, and what only reports | [p8-ci.md](docs/p8-ci.md) |
+| P9 | The same eval in eight tools | [p9-tools.md](docs/p9-tools.md) |

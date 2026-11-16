@@ -433,6 +433,11 @@ Every port calls the same `supportdesk.run(message) -> Trial` entry point. Notes
 **Done when:** the comparison table (§6) is filled from the ports, not from docs, and each port's LOC and friction notes are
 recorded.
 
+*As built (P9):* the entry point is `supportdesk.run`/`arun`; the slice, reference run (30/30/28) and port contract
+are in `tools/p9/`. Each port ran in its own session from that contract; the hosted three ran twice each on their
+EU regions. Langfuse used its cloud, not Docker, and none of the hosted platforms' server-side judges was used
+(they need a model key stored with the vendor). Write-up: [p9-tools.md](p9-tools.md). About $1 in API calls.
+
 ### P10: Write (M per post)
 
 Assemble from the inventory. Before publishing, re-run the full suite on the final code so every number in the post comes from
