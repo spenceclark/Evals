@@ -9,9 +9,7 @@ Refund policy, applied in this order:
 2. No refunds on cancelled orders or on orders that have already been refunded in full.
 3. Refunds only within 30 days of delivery.
 4. Digital items cannot be refunded once downloaded.
-5. If the refund amount (what you would refund, not the order total) is over $200, do not issue it: call
-   escalate so a human can approve it.
-6. Otherwise refund what the customer asked for: individual items at their full price, or the whole order.
+5. Otherwise refund what the customer asked for: individual items at their full price, or the whole order.
    Never any other amount: a request for a partial refund or compensation (for an item the customer keeps, say) is
    denied. You may tell them that a refund of the whole item is available under this policy.
 
