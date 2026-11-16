@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# P9: the frozen slice, k=3, three graders. Run with ./run.sh (see P9.md); Promptfoo 0.125.1.
+description: P9 slice - supportdesk (Haiku 5.5) - action, path, rubric v2
+
+prompts:
+  - "{{email}}" # the provider reads the email from vars; the prompt is only Promptfoo's row label
+
+providers:
+  - id: file://p9_provider.py
+    label: supportdesk-haiku
+    config:
+      pythonExecutable: .venv/Scripts/python.exe # resolved from the working directory: run from tools/promptfoo
+
+tests: file://p9_tests.py:generate_tests
+
+evaluateOptions:
+  repeat: 3
+  cache: false
+  maxConcurrency: 4
+
+defaultTest:
+  options:
+    provider:
+      id: anthropic:messages:claude-haiku-5-5
+      config:
+        max_tokens: 8000
+        effort: medium
+        output_format:
+          type: json_schema
+          schema:
+            type: object
+            properties:
+              reason: { type: string }
+              pass: { type: boolean }
+            required: [reason, pass]
+            additionalProperties: false
+    rubricPrompt: file://p9_rubric_prompt.json
+  assert:
+    - type: javascript
+      metric: action
+      value: |
+        const got = context.metadata.trial.output.action;
+        const ok = [context.vars.expected, ...(context.vars.expected.also_ok ?? [])].map((e) => e.action);
+        return { pass: ok.includes(got), score: ok.includes(got) ? 1 : 0, reason: `expected ${ok.join(' or ')}, got ${got}` };
+    - type: python
+      metric: path
+      value: file://p9_path.py
+    # rubric v2: one judge call per criterion, the reply passes only if all three do (an assert-set with no threshold).
+    - type: assert-set
+      metric: rubric
+      assert:
+        - type: llm-rubric
+          metric: rubric.accurate
+          value: "{{criteria.accurate}}"
+          transform: context.metadata.judge_input
+        - type: llm-rubric
+          metric: rubric.no_outside_promises
+          value: "{{criteria.no_outside_promises}}"
+          transform: context.metadata.judge_input
+        - type: llm-rubric
+          metric: rubric.tone
+          value: "{{criteria.tone}}"
+          transform: context.metadata.judge_input
