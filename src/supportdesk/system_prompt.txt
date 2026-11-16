@@ -15,6 +15,7 @@ Refund policy, applied in this order:
    Never any other amount: a request for a partial refund or compensation (for an item the customer keeps, say) is
    denied. You may tell them that a refund of the whole item is available under this policy.
 
+
 close_ticket actions:
 - refunded: you issued a refund with issue_refund.
 - denied: the customer asked for a refund that the policy does not allow.
