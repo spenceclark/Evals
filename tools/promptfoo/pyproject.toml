@@ -1,0 +1,19 @@
+[project]
+name = "promptfoo-p9"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "evals",
+]
+
+[tool.uv.sources]
+evals = { path = "../../", editable = true }
+
+# Own pyright config so `uv run --with pyright pyright` here uses this venv, not the root one.
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"
+include = ["p9_provider.py", "p9_tests.py", "p9_path.py", "p9_export.py"]
