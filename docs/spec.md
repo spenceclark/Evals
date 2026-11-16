@@ -406,6 +406,12 @@ How do you gate on noisy metrics without flaky CI?
 **Outputs:** O21.
 **Done when:** a PR that deletes the over-$200 rule fails CI, and a whitespace-only PR passes.
 
+*As built (P8):* the gate is `scripts/ci.py` (threshold 95%; P6's always-pass → always-fail rule per case). The
+nightly job is its own workflow, `evals-nightly.yml`, so it can be switched off without touching the gate. The
+baseline is an artifact of the latest nightly run on main, falling back to the committed seed `ci/baseline.json`
+(the P7 v3 runs, regraded); nothing is committed back. Measured: $0.12 and ~2 min per PR; $0.40 and ~7 min per nightly run. The shipped prompt moved to
+`src/supportdesk/system_prompt.txt` and is v3; v2 is frozen as `V2_PROMPT` / `haiku_v2`.
+
 ### P9: Same eval in 8 tools (L; the cut line can drop it to M)
 
 **Learn:** How does each tool represent a case, a grader and a run (the brief's three mandated columns)? What is native, and what is

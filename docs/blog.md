@@ -1051,3 +1051,81 @@ part was my half hour of labelling.
 - **Count your monitor's inputs.** Silence can mean healthy traffic, or no traffic reaching the monitor.
 - **A saturated suite needs new cases, not more runs.** Mine scored 100% on all three versions. Everything that told
   them apart came from outside it.
+
+## 10. Putting it in CI
+
+Everything so far ran when I remembered to run it. The point of a regression suite is that it runs when I *don't*
+remember: on every change, before the change lands. So the last step of the build is a check on every pull request.
+
+First I had to decide which prompt that check tests. Until now the agent ran v2, with v3 sitting beside it. But the
+suite now holds four compensation cases that v2 fails every time. A gate on v2 would have been red from day one. So v3
+shipped. The prompt also moved out of the code into a text file of its own, so a prompt change is a one-file diff.
+
+### What blocks a merge, and what only reports
+
+Not everything I've built belongs in the gate. The test I used: **if this goes red, does it mean the change broke
+something?**
+
+- **Code graders gate.** Given the same trial, they give the same verdict every time. If they fail, the agent did
+  something different.
+- **The judge reports.** It adds its own noise, and I validated it for agreement with my labels, not as something that
+  stops a merge. It runs nightly.
+- **The capability suite reports.** Those cases are meant to fail sometimes. That's why they're capability cases.
+
+So a pull request runs the 62 regression cases, 3 times each, with the code graders only. A nightly job runs
+everything, with the judge, and changes nothing.
+
+### Gating on a noisy number
+
+A pass rate from 186 trials moves around. If one unlucky trial could fail a PR, I'd learn to ignore red builds within
+a week. The gate has two rules, written down before the first run:
+
+1. **The pass rate must stay at 95% or above.**
+2. **No case that always passed on main may now fail every time.**
+
+The second rule is the one from section 8. A broken rule hits a few cases completely and barely moves the average.
+Deleting the $200 rule moved the pass rate by 11 points, but it flipped 7 cases from 10 out of 10 to 0 out of 3.
+
+A case that fails *some* of its three tries gets a warning, not a red build. That's a trade, and I can put numbers on
+both sides of it.
+
+With three tries per case, false alarms are rare. If clean cases failed 1% of the time, the gate would go red by chance
+about once in 12,000 PRs. **The cost is partial regressions.** If a change makes one case fail half the time, the gate
+blocks it only one time in eight. Three times in four, it's a warning for a person to read. And one time in eight it
+looks perfectly clean. The gate is built to stop the breakages that happen every time, and to report the intermittent
+ones to a person.
+
+### The test
+
+The plan defined done as two pull requests. One deletes the $200 rule, and it must fail. The other changes only
+whitespace, and it must pass.
+
+**Deleting the rule failed.** 165 of 186 trials passed (88.7%), and the same 7 cases went from 10 out of 10 to 0 out
+of 3. Each one reads "expected escalated, got refunded": without the rule, the agent paid every over-$200 refund itself.
+Either rule alone would have blocked the merge.
+
+**The blank line passed**, 186 out of 186. It did change what the model saw, since the prompt's fingerprint changed.
+It just didn't change what the agent did.
+
+Before either PR, I ran the same command on my own machine, on both prompts, and got the same answers. The first runs
+on GitHub then failed before any eval ran, on a version tag for a setup step that doesn't exist.
+
+### What it costs
+
+About 12 cents and two and a quarter minutes per pull request, setup included. The nightly run costs 40 cents, half of
+it the judge, which comes to about $12 a month while it's switched on. I'll switch it off when this series is done.
+
+The first nightly run made the case for keeping the judge out of the gate. Every regression trial passed. The judge
+failed 14 replies the code graders were happy with, and most of them were real: a refund "usually takes 5 to 10
+business days", which nobody had promised, or "contact our team", which this shop doesn't have. A couple were harsh.
+That's useful for a person to read in the morning, but not reliable enough to block a merge.
+
+### Smaller lessons from this step
+
+- **Gate on the checks that can't disagree with themselves.** The judge, the capability suite and the trends all
+  report. Only deterministic checks on cases that should always pass block a merge.
+- **Per case beats the average.** The breakages that matter hit a few cases completely. The average barely sees them.
+- **Decide what a red build means before the first one.** Otherwise each red build turns into an argument about the
+  threshold.
+- **An infra failure is not a pass.** A missing trial or an API error fails the job and says "rerun". It never counts as
+  green.

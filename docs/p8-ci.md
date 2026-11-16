@@ -1,6 +1,6 @@
 # P8: CI (output O21)
 
-**Status: in progress.** The gate is built and has been rehearsed locally. The CI runs and the two done-when PRs come next.
+**Status: done.** The gate runs on every PR. The done-when PRs failed and passed as they should.
 
 Code:
 - The gate, the nightly report and the baseline: [scripts/ci.py](../scripts/ci.py).
@@ -90,6 +90,66 @@ Without the rule, Haiku refunded every over-$200 request instead of escalating i
 escalated, got refunded. That is the same failure as P6's planted regression. Both rules fire. 7 of 62 cases out of
 186 trials brings the rate down to 88.7%.
 
+## O21: the done-when PRs on GitHub Actions
+
+Both PRs edit only `src/supportdesk/system_prompt.txt`, which is inside the path filter, so the gate ran on both.
+Neither was merged; both were closed after CI ran.
+
+| PR | Change | Prompt | Pass rate | Newly failing | Gate | Eval | Job | Cost |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [#1](https://github.com/spenceclark/Evals/pull/1) | delete the $200 rule | `475534b53c5b` | 165/186 (88.7%) | 7 | **fail** | 1.8 min | 2m 16s | $0.122 |
+| [#2](https://github.com/spenceclark/Evals/pull/2) | one blank line | `bb855414a9bb` | 186/186 (100%) | 0 | **pass** | 1.7 min | 2m 11s | $0.122 |
+
+**Done when: met.** #1 failed both rules, on the same 7 cases as the local rehearsal: `esc-01`…`esc-06` and
+`cap-t198`, each "action: expected escalated, got refunded", 0/3 against a 10/10 baseline. #2 passed with every trial
+clean. Its prompt hash differs from main's, so the blank line really did reach the model. Both compared against the
+committed seed, because no nightly run had finished yet.
+
+**Per PR: about $0.12 and 2¼ minutes**, setup and checks included. The job summary (#1's, as GitHub shows it) is the
+same markdown that `ci.py` writes to `runs/ci/pr/summary.md`:
+
+![The job summary of PR #1: Eval gate FAIL, 165/186, 7 newly failing escalation cases](img/p8-job-summary.png)
+
+**One false start.** The first runs failed at "Set up job": `astral-sh/setup-uv@v10` doesn't resolve, because setup-uv
+publishes exact release tags only. It is now pinned to `v10.3.3`. The checkout and upload-artifact actions do keep
+floating major tags.
+
+### The first nightly run
+
+Started by hand (`workflow_dispatch`) on main, at the same time as the PRs:
+
+| Suite | Cases | Trial pass rate | Always-pass cases |
+| --- | --- | --- | --- |
+| regression | 62 | 186/186 (100%) | 62 |
+| capability | 24 | 66/72 (91.7%) | 22 |
+
+The only cases that aren't always-pass are the two tool-limit cases from P7, `cap-t017` and `cap-t039`, at 0/3. Its
+per-case results are now the baseline for PRs.
+
+**The reply judge against the code graders**, on all 258 trials that sent a reply:
+
+| | Trials |
+| --- | --- |
+| both pass | 238 |
+| both fail | 1 |
+| code fails, judge passes | 5 |
+| judge fails, code passes | 14 |
+
+The 6 code failures are the two tool-limit cases. The reply there is fine; the ticket records one action where two
+happened. Most of the judge's 14 are about wording that no code grader reads:
+- a refund timeline nobody promised ("usually 5 to 10 business days");
+- "no need to ship anything back", which P7 already noted;
+- sending the customer to "contact our team" or "the gift card section of our website", neither of which exists;
+- a downloaded-course denial claiming more than the order record shows.
+
+A few look harsh, like `cap-t076`'s offer of a whole-item refund, which v3 explicitly allows. That is the case for
+reporting: what the judge catches is real but needs a person to read it, and it isn't stable enough to block a merge.
+
+**Nightly: $0.40 a run** ($0.20 agent, $0.20 judge), **6.8 minutes**. About $12 a month while it's on.
+
 ## Open
 
-- The CI runs, the job-summary screenshot, and the two done-when PRs.
+- **Switch the nightly off after the article:** `gh workflow disable evals-nightly.yml`. The PR gate keeps using the
+  last nightly baseline until its artifact expires (90 days), then the committed seed.
+- **Nobody reads a report-only job by default.** The judge's disagreements with the code graders appear only in the
+  nightly summary.

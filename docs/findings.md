@@ -727,3 +727,53 @@ Write-up with the flag rates (O18), the pipeline (O19) and the lifecycle (O20):
   reproducible. P8 has to decide which one CI gates.
 - **P8 (CI):** the regression suite is now 44 generated + 18 captured cases. The per-case "always-pass → always-fail"
   rule from P6 belongs in the CI gate.
+
+## P8: CI (2026-11-16)
+
+Write-up with the gate, its noise and the CI runs (O21): [p8-ci.md](p8-ci.md).
+
+### Tried
+
+- **A PR gate** (`.github/workflows/evals.yml`, `scripts/ci.py pr`): ruff, pyright, the tests, then the 62 regression
+  cases × 3 trials on the shipped prompt, code + path graders. It fails on a pass rate under 95%, or on a case that
+  always passed in the baseline and now fails all 3 trials. Flaky cases warn, and infra errors fail as infra.
+- **A nightly report** (`evals-nightly.yml`): all 86 cases × 3, plus the Haiku reply judge against the shipped policy.
+  Report only. It writes the next baseline as an artifact.
+- **Shipping v3.** The prompt moved to `src/supportdesk/system_prompt.txt`, and v2 is frozen as `V2_PROMPT`.
+- **The done-when PRs:** delete the $200 rule; add one blank line to the prompt.
+
+### Worked
+
+- **Done when, met on GitHub.** The rule-deletion PR (#1) failed at 165/186, with 7 cases (`esc-01`…`esc-06`,
+  `cap-t198`) going from 10/10 to 0/3. The whitespace PR (#2) passed 186/186. That matches the local rehearsal
+  exactly.
+- **Cheap and quick:** about $0.12 and 2¼ minutes per PR, including setup, ruff, pyright and the tests.
+- **The baseline cost nothing:** P7's v3 runs, on the same prompt hash and regraded, gave 10 trials per case.
+- **The per-case rule and the threshold agree on a real break.** Each would have failed #1 alone.
+- **The first nightly run:** 186/186 regression trials and 66/72 capability trials passed; only the two tool-limit
+  cases failed. $0.40 and 6.8 minutes. Its results are now the PR baseline.
+- **The judge failed 14 replies the code passed,** out of 258. Most were wording no code grader reads: an unpromised
+  "5 to 10 business days", "no need to ship anything back", "contact our team" or a website page that doesn't exist.
+  A few were harsh (`cap-t076`'s whole-item offer, which v3 allows). Real but noisy, which is why it reports and
+  doesn't gate.
+
+### Didn't work / had to change
+
+- **The prompt had to leave the code first.** The P6 and P7 variants were derived from the shipped prompt, with asserts
+  that the $200 rule appeared exactly once. A PR deleting the rule would have crashed at import, and CI would have
+  failed for the wrong reason.
+- **`astral-sh/setup-uv@v10` doesn't resolve.** setup-uv publishes exact release tags only, so the first CI runs failed
+  at "Set up job". Pinned to v10.3.3.
+
+### Surprising
+
+- **The gate's job is to be boring.** With 3 trials it almost never goes red by chance: about once in 12,000 PRs at a
+  1% per-trial failure rate. The price is partial regressions. A case that now passes half the time fails the gate only
+  12.5% of the time, and is a warning 75% of the time.
+
+### Open / carried forward
+
+- **Switch off the nightly after the article:** `gh workflow disable evals-nightly.yml`. The PR gate then falls back
+  to the committed seed once the last nightly artifact expires (90 days).
+- **The judge reports to nobody.** Its disagreements show in the nightly summary, and no one reads that by default.
+- Carried from P7: multi-issue `close_ticket`; the Vessel FK bug report.
