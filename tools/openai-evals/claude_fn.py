@@ -5,6 +5,7 @@ documented extension point: a class registered in registry/completion_fns/claude
 
 evals' PromptFn calls every completion fn with max_tokens, temperature=0, top_p=1, frequency_penalty=0,
 presence_penalty=0 and n=1. We send only max_tokens unless forward_sampling is set (used once to show the 400).
+P9 adds `effort` (sent as output_config.effort, as P4's judge does) and records the stop_reason with each sampling.
 """
 
 from typing import Any
@@ -26,10 +27,17 @@ class ClaudeCompletionResult(CompletionResult):
 
 class ClaudeCompletionFn(CompletionFn):
     def __init__(
-        self, model: str, base_url: str, session: str, forward_sampling: bool = False, **_registry: Any
+        self,
+        model: str,
+        base_url: str,
+        session: str,
+        forward_sampling: bool = False,
+        effort: str | None = None,
+        **_registry: Any,
     ) -> None:
         self.model = model
         self.forward_sampling = forward_sampling
+        self.effort = effort
         self.client = anthropic.Anthropic(base_url=base_url, default_headers={"X-Vessel-Session": session})
 
     def __call__(self, prompt: str | OpenAICreateChatPrompt, **kwargs: Any) -> ClaudeCompletionResult:
@@ -43,14 +51,17 @@ class ClaudeCompletionFn(CompletionFn):
             if m["role"] != "system"
         ]
         # anthropic>=2 dropped temperature/top_p kwargs (TypeError), so the forward path puts them on the wire raw.
-        sampling = {"temperature": kwargs["temperature"], "top_p": kwargs["top_p"]} if self.forward_sampling else None
+        sampling = {"temperature": kwargs["temperature"], "top_p": kwargs["top_p"]} if self.forward_sampling else {}
+        if self.effort:
+            sampling["output_config"] = {"effort": self.effort}
         resp = self.client.messages.create(
             model=self.model,
             max_tokens=kwargs.get("max_tokens", 1024),
             messages=messages,
             system=system or anthropic.omit,
-            extra_body=sampling,
+            extra_body=sampling or None,
         )
         text = "".join(b.text for b in resp.content if b.type == "text")
-        record_sampling(prompt=chat, sampled=[text], model=self.model, usage=resp.usage.model_dump())
+        record_sampling(prompt=chat, sampled=[text], model=self.model, usage=resp.usage.model_dump(),
+                        stop_reason=resp.stop_reason)  # fmt: skip
         return ClaudeCompletionResult(text)

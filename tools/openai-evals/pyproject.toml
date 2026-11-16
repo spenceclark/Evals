@@ -14,3 +14,4 @@ typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 venvPath = "."
 venv = ".venv"
+extraPaths = ["../../src"]  # supportdesk/evalkit: on PYTHONPATH at run time (the root package is also named `evals`)

@@ -1,0 +1,14 @@
+# P9: the frozen 10-case slice, k=3, graded for action (code), path (trajectory) and rubric v2 (model-graded).
+# Run: oaieval supportdesk-haiku,claude-haiku-5-5-judge p9-slice  (policy first, judge last).
+p9-slice:
+  id: p9-slice.dev.v0
+  description: P9 - refund desk on the frozen slice, 3 trials per case, action/path/rubric graders.
+  metrics: [action, path, rubric]
+p9-slice.dev.v0:
+  class: p9_eval:P9Slice
+  args:
+    samples_jsonl: ../p9/slice.jsonl  # the shared frozen slice, read in place (relative to the cwd)
+    modelgraded_spec: p9-rubric-v2
+    trials: 3
+    eval_kwargs:
+      max_tokens: 8000  # P4's judge budget; the default 1024 risks a truncated reply, whose last line is parsed
