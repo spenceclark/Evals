@@ -7,6 +7,8 @@ not tagged: the versions are in the table below and in each port's record. Re-ch
 current release before posting; these go stale fastest.
 Not tested, and worded as such: server-side judges on the hosted platforms, working an annotation queue in a UI, the
 vendors' GitHub Actions.
+Screenshots (docs/img/p9-*.jpg) taken 2026-11-17 in each platform's UI, of the two record runs. The org names, account
+name and profile pictures are blacked out or cropped; the UIs will have moved on by the time this is posted.
 Remove this comment before posting.
 -->
 
@@ -167,6 +169,16 @@ agent's tool calls in some other way:
 - **carried** in metadata or a test-case field (Promptfoo, DeepEval);
 - **smuggled** through a string (OpenAI Evals, whose model functions can only return text).
 
+Replayed, the agent's steps look like this in Braintrust and Langfuse. It's the same escalation case in both: the model
+calls arrived on their own, the tool calls are there only because the port added them afterwards, and the graders hang
+underneath, with the judge's three calls inside the rubric.
+
+![Braintrust trace of one escalation trial: model calls, replayed get_order and escalate spans, then the action, rubric
+and path scorers](img/p9-braintrust-trace.jpg)
+
+![Langfuse trace of the same case: three model calls and the replayed tool observations under the task, then the
+action, rubric and path evaluators](img/p9-langfuse-trace.jpg)
+
 The worst case was a check that passed anyway. Pydantic Evals can check an agent's path from its trace, and it failed
 both ways here:
 - **with tracing not set up,** one of its checks returned a plain "false", with a note that there was no trace, which
@@ -236,6 +248,30 @@ review results. Each did the comparison differently, and none handled repeated t
 | Comparing two runs | automatic, against the previous run; a diff view | three trials paged under each case, with a mean | one trial per case shown, the last one started |
 | Run-to-run noise | two identical runs showed "regressions" | the stored totals lagged about 14 minutes behind | a three-trial comparison is two samples of 10 |
 | Repeats | built in | built in | none: I passed the data in three times |
+
+Here's the same comparison, run 2 against run 1, in each. Braintrust groups each case's three trials and shows the
+earlier run's scores under the new ones (both runs scored 100% on everything):
+
+![Braintrust comparing run 2 with run 1: three trials per case, each score with the earlier run's beneath
+it](img/p9-braintrust-compare.jpg)
+
+LangSmith shows each case's mean over its three trials, pages through the trials one at a time ("1/3"), and marks in red
+where one run scored lower. Here run 1 lost two of three trials on one case:
+
+![LangSmith comparing the two runs: per-case means, trials paged 1 of 3, and the case where run 1 scored lower in
+red](img/p9-langsmith-compare.jpg)
+
+Langfuse shows one verdict per case for each run. Its "90%" for run 2 is 9 of 10 cases, from one trial each; over all
+30 trials, the judge's `accurate` score was 29 of 30:
+
+![Langfuse comparing the two runs: one true or false per case per run, from one of its three
+trials](img/p9-langfuse-compare.jpg)
+
+LangSmith also charts every run on a dataset, which is the quickest way to see the two record runs (0.90 and 0.97 on the
+rubric) next to the smaller checks around them:
+
+![LangSmith's experiment list for the slice: feedback, latency, token and cost charts per
+run](img/p9-langsmith-experiments.jpg)
 
 The finding I didn't expect is the same on all three: **a human correction is averaged with the judge's score.** When I
 marked a reply as failing that the judge had passed, the platform stored my score as one more score on the same line.
