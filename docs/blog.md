@@ -1129,3 +1129,73 @@ That's useful for a person to read in the morning, but not reliable enough to bl
   threshold.
 - **An infra failure is not a pass.** A missing trial or an API error fails the job and says "rerun". It never counts as
   green.
+
+## 11. Before you trust an eval: a checklist
+
+Every item here is something this project got wrong, or nearly did, before the check existed. The bracket says where.
+
+### The cases
+
+- [ ] **An oracle passes every case.** Carry out each expected answer against the real system. A case the oracle fails
+  is a wrong label or an impossible case, not a model failure. (Part 1; it later caught a refund label on an order 158
+  days past delivery.)
+- [ ] **A null baseline scores what you'd expect.** "Deny everything" passed 4 of the first 10 cases. Read every score
+  next to that floor. (Part 1)
+- [ ] **Cases with more than one right answer say so.** Otherwise a defensible answer counts as a failure. (Part 1)
+- [ ] **The suite can fail.** If every version scores 100%, it can't tell a good change from a bad one. My 66 cases
+  couldn't separate three prompt versions; only cases from real-looking traffic could. (Section 9)
+
+### The graders
+
+- [ ] **Each grader checks one thing, and is shown to both pass and fail** on fabricated trials before it grades a real
+  one. (Part 1)
+- [ ] **Something compares what the agent said with what actually happened.** "We have refunded $29.99" passed every
+  grader that read only the reply, after the refund had failed. (Part 1)
+- [ ] **Every path rule has a reason beyond "it never fired".** (Part 1)
+
+### The judge
+
+- [ ] **It's checked against a person's labels, on items it was never tuned on.** Tuning took agreement to κ 0.96 on the
+  tuning set; on held-out items it was 0.80. (Part 2)
+- [ ] **You report how many items it answered.** A judge that skipped 15 of 40 looked perfect on the 25 it answered.
+  (Part 2)
+- [ ] **On a lopsided set, kappa, not agreement.** "Always pick Haiku" agreed with me 90% of the time. (Part 2)
+- [ ] **It fails the obvious failures:** an empty reply, "I don't know", an answer to the wrong question. (Part 2)
+- [ ] **You've read the request it actually sends.** Some defaults leave out the customer's question; one sends which
+  model wrote the reply; one routes the call through the vendor. (Part 4)
+- [ ] **You know how much it wobbles.** Ask the same questions twice: Opus changed 8% of its verdicts. (Part 2)
+
+### The counting
+
+- [ ] **Several trials per case.** One trial per case misled in both directions. (Part 1)
+- [ ] **The noise is measured:** an A/A run, the same thing twice, before any comparison. (Section 8)
+- [ ] **A planted bug is found.** If you can't detect a change you made on purpose, you can't detect one you didn't.
+  (Section 8)
+- [ ] **Per case, not just the average.** A broken rule flips a few cases completely and barely moves the mean.
+  (Sections 8 and 10)
+- [ ] **You know the smallest effect this suite can see,** and you don't report differences below it. (Section 8)
+- [ ] **You count by the thing you sampled.** Counted by verdict, a position bias looked like 75%; by pair, it was 9 of
+  11. (Part 2)
+
+### In production
+
+- [ ] **The monitor counts its inputs.** Mine went quiet because the capture had stopped, and quiet looked healthy.
+  (Section 9)
+- [ ] **Something looks at the refusals.** A wrong "no" leaves no trace for any check that doesn't know the answer.
+  (Section 9)
+- [ ] **A person labels a sample, blind,** and the questions they can't answer from the policy go to whoever owns it.
+  (Section 9)
+
+### In CI
+
+- [ ] **Only deterministic checks block a merge;** judges and capability cases report. (Section 10)
+- [ ] **The gate's rules were written down before its first run.** (Section 10)
+- [ ] **An infrastructure error fails the job as an error,** never as a pass. (Section 10)
+- [ ] **A real break fails it and a no-op passes it,** shown on actual pull requests. (Section 10)
+
+### The tools
+
+- [ ] **Check a "100% pass" against the raw results.** One framework printed 100% while every test had failed. (Part 4)
+- [ ] **Know what leaves your machine:** telemetry, traces, the full prompt on every call. (Part 4)
+- [ ] **Know what a human correction does to the numbers.** On every hosted platform tried, it was averaged with the
+  judge's verdict, not used in its place. (Part 4)

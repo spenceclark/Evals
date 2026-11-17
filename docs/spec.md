@@ -450,6 +450,17 @@ Part 2's run is tag `part2-data` (6d4f967): every P4 and P5 command rerun on tha
 served from the cache (no model calls, checked with a dry run that blocks misses), every number matching the P4
 and P5 write-ups. The outputs are in `runs/p10/part2-rerun-6d4f967/` (gitignored).
 
+**Part 3 (decided 2026-11-17): keep the original runs where the numbers are before/after figures,** as part 1 did.
+Its figures compare versions or conditions that the final code no longer runs side by side (the old and fixed loop,
+the A/A and planted-bug runs, v1 → v2 → v3, the CI test PRs), so they come from the runs where each step happened:
+P6 at afe9668, P7 at f5172c4, P8 at 902ef40–8dd993c (GitHub Actions runs 43914144809, 43914150885, 43914139527).
+Footnotes name those commits and runs instead of one tagged rerun. Any figure that only describes the system as it
+now stands is checked against the final code when part 3 is split out.
+
+**Part 4: the P9 port runs.** Every port ran on 2026-11-16 against the same agent code (the P9 base, c6854b2; the
+agent hasn't changed since), each recorded with its tool versions in `tools/<tool>/P9.md`. Tool behaviour is dated,
+not tagged: the post states the versions and the date.
+
 ---
 
 ## 6. Tool comparison template (filled in P9)
@@ -522,10 +533,12 @@ list), no O2 harness listing (only "a few hundred lines"), and no O4 snippets (o
 2. **Who grades the grader?** (LLM judges; [blog-part-2.md](blog-part-2.md); was guide §6, §7): validating a judge
    against human labels; position, length and self-preference bias.
 3. **Good enough to ship?** (turning results into decisions; guide §8, plus P7 and P8): counting (pass@k, pass^k, noise, how much eval is enough),
-   production checks, captures → cases, suite lifecycle, evals in CI, and the checklist (O25).
-4. **One test, eight toolboxes** (comparing frameworks; P9, plus guide §2 and the P0 compat spike).
+   production checks, captures → cases, suite lifecycle, evals in CI, and the checklist (O25, drafted as blog.md §11).
+4. **One test, eight toolboxes** (comparing frameworks; [blog-part-4.md](blog-part-4.md); P9, plus guide §2 and the P0
+   compat spike).
 
-[blog.md](blog.md) stays the working draft for parts 3–4 (§6–§7 were split out as part 2 on 2026-11-16), with its original section numbers. Its §8 opening corrects a
+[blog.md](blog.md) stays the working draft for part 3 (§6–§7 were split out as part 2 on 2026-11-16; part 4 was
+drafted directly as blog-part-4.md on 2026-11-17), with its original section numbers. Its §8 opening corrects a
 §1 example that part 1 already states correctly, so reword that paragraph when part 3 is split out.
 
 ---
