@@ -983,7 +983,7 @@ or why it was flagged.
 Then I checked my labels the way section 3 checks the cases: the script that encodes the policy worked out its own
 answer, and another carried each of mine out against a real store. That caught two things:
 
-- **I'd refunded an order delivered 158 days ago.** The email was a prompt injection, and I'd noted only that $18
+- **I'd refunded an order delivered 144 days ago.** The email was a prompt injection, and I'd noted only that $18
   didn't need approving. I missed the date; the policy script didn't.
 
 That policy check had a catch of its own: it needs the facts each email was generated from, which real traffic doesn't
@@ -1047,7 +1047,7 @@ part was my half hour of labelling.
   moved without a lookup. A wrong refusal leaves no trace, and only labels find it.
 - **Labelling is where the policy gets written.** The real bug was a gap in the instructions, and only a person could
   fill it. Writing the label was writing the rule.
-- **Check the labels too.** A script that carries out each answer caught a date I'd missed.
+- **Check the labels too.** A script that applies the written policy to each label caught a date I'd missed.
 - **Count your monitor's inputs.** Silence can mean healthy traffic, or no traffic reaching the monitor.
 - **A saturated suite needs new cases, not more runs.** Mine scored 100% on all three versions. Everything that told
   them apart came from outside it.
@@ -1137,11 +1137,12 @@ Every item here is something this project got wrong, or nearly did, before the c
 ### The cases
 
 - [ ] **An oracle passes every case.** Carry out each expected answer against the real system. A case the oracle fails
-  is a wrong label or an impossible case, not a model failure. (Part 1; it later caught a refund label on an order 158
-  days past delivery.)
+  is a wrong label or an impossible case, not a model failure. (Part 1)
 - [ ] **A null baseline scores what you'd expect.** "Deny everything" passed 4 of the first 10 cases. Read every score
   next to that floor. (Part 1)
 - [ ] **Cases with more than one right answer say so.** Otherwise a defensible answer counts as a failure. (Part 1)
+- [ ] **New labels are checked against the policy too.** A script that applied the written policy to each of my
+  labels caught a refund on an order 144 days past delivery. (Section 9)
 - [ ] **The suite can fail.** If every version scores 100%, it can't tell a good change from a bad one. My 66 cases
   couldn't separate three prompt versions; only cases from real-looking traffic could. (Section 9)
 
@@ -1163,7 +1164,8 @@ Every item here is something this project got wrong, or nearly did, before the c
 - [ ] **It fails the obvious failures:** an empty reply, "I don't know", an answer to the wrong question. (Part 2)
 - [ ] **You've read the request it actually sends.** Some defaults leave out the customer's question; one sends which
   model wrote the reply; one routes the call through the vendor. (Part 4)
-- [ ] **You know how much it wobbles.** Ask the same questions twice: Opus changed 8% of its verdicts. (Part 2)
+- [ ] **You know how much it wobbles.** Ask the same questions three times: Opus changed 8% of its
+  verdicts. (Part 2)
 
 ### The counting
 

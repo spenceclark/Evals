@@ -683,7 +683,7 @@ Write-up with the flag rates (O18), the pipeline (O19) and the lifecycle (O20):
   meets the done-when 4 times over.
 - **v3 generalised within the traffic:** all 15 partial-amount emails were denied (v2: 3 refunded, 8 denied, 4 other).
   No generated case got worse.
-- **Checking the labels paid off.** `decide()` caught a refund label on an order 158 days past delivery. The oracle
+- **Checking the labels paid off.** `decide()` caught a refund label on an order 144 days past delivery. The oracle
   caught only the two-action cases. `decide()` needs the specs sidecar, so on real traffic (and on 9 of these 20
   unkeyed labels) there's no such check.
 

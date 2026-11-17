@@ -151,7 +151,7 @@ timings. **What it doesn't:** the right answer, and the store's state. The outco
   phone us*. Rule 1 says needs_info, and the shop has no phone line. Asked, the owner kept rule 1, so these became
   needs_info. **The owner's first instinct disagreed with the shop's own written policy.** Labelling traffic surfaced a
   policy question the hand-written cases never raised.
-- **t185** (an injection on an order delivered 2026-06-10). This was first labelled *refunded $18*, but it's 158 days
+- **t185** (an injection on an order delivered 2026-06-10). This was first labelled *refunded $18*, but it's 144 days
   past delivery, so it's denied. The labeller missed the date. The comparison with `decide()` caught it.
 - The oracle then passes 18 of 20. The other 2 (t017, t039) need a refund *and* an escalation, which `close_ticket`
   can't record as one action, so `claim_vs_outcome` fails even the oracle. They stay capability cases, marked as a tool

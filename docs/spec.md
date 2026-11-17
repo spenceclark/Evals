@@ -19,7 +19,7 @@ All five defaults were accepted. Each row says what would change if one is flipp
 | -- | -------- | ------- | -------------- |
 | D1 | Example system (brief: "option 2, standard/familiar") | **A customer-support refund agent for a fictional online shop** (see §3). Same shape as τ-bench's retail domain, so readers know it. | Text-to-SQL over a public sample DB gives cleaner exact-match grading but a weak path/recovery story. P3 would need re-planning. |
 | D2 | Model line-up | **System under test (SUT): `claude-haiku-5-5`** (primary) **+ local `Qwen3.5-9B-Unsloth:IQ4` via Ollama** (second family). **Judge: `claude-opus-5-5`**. `claude-sonnet-5-5`, `claude-haiku-5-5` and the local model are measured as cheaper judges in P4. | A stronger SUT (Sonnet/Opus) fails less, so there is less to grade and pass@k/pass^k barely diverge. Cost per trial rises ~20–40× (cached price table). A weaker SUT is a deliberate choice for *headroom*, not to save money. |
-| D3 | One post or a series | **A four-part series** (changed 2026-11-15, after P6; it was two posts). (1) Building an eval: concepts, scenario, code graders, path ([blog-part-1.md](blog-part-1.md)). (2) LLM judges: validation and bias ([blog-part-2.md](blog-part-2.md)). (3) Counting, production checks, captures → cases, CI. (4) The same eval in 8 tools. Parts 1–3 were one guide until it reached ~10k words at P6, with ~13k expected after P8. | Two posts: one ~13k-word guide, plus the tools post. Tool comparisons go stale fastest, so the tools part stays separate either way. |
+| D3 | One post or a series | **A four-part series** (changed 2026-11-15, after P6; it was two posts). (1) Building an eval: concepts, scenario, code graders, path ([blog-part-1.md](blog-part-1.md)). (2) LLM judges: validation and bias ([blog-part-2.md](blog-part-2.md)). (3) Counting, production checks, captures → cases, CI ([blog-part-3.md](blog-part-3.md)). (4) The same eval in 8 tools. Parts 1–3 were one guide until it reached ~10k words at P6, with ~13k expected after P8. | Two posts: one ~13k-word guide, plus the tools post. Tool comparisons go stale fastest, so the tools part stays separate either way. |
 | D4 | Source of "real failures" for the captures→cases section | **Simulated production traffic** run through Vessel (P7). It is synthetic, and the post says so. | Use existing Vessel captures from earlier runs (maze / goblin / small-model tool use) for **that one section only**. More authentic, small investment in old material. |
 | D5 | Tool depth | **Port the same slice to all 8 tools.** "OpenAI Evals" means the open-source framework only. It is documented from source if it won't install on 3.14. | Port to fewer tools (cut line in §5). The comparison table still covers all 8 at the case/grader/run level. |
 
@@ -532,14 +532,14 @@ list), no O2 harness listing (only "a few hundred lines"), and no O4 snippets (o
    code graders, grading the path.
 2. **Who grades the grader?** (LLM judges; [blog-part-2.md](blog-part-2.md); was guide §6, §7): validating a judge
    against human labels; position, length and self-preference bias.
-3. **Good enough to ship?** (turning results into decisions; guide §8, plus P7 and P8): counting (pass@k, pass^k, noise, how much eval is enough),
-   production checks, captures → cases, suite lifecycle, evals in CI, and the checklist (O25, drafted as blog.md §11).
+3. **Good enough to ship?** (turning results into decisions; [blog-part-3.md](blog-part-3.md); was guide §8–§11): counting (pass@k, pass^k, noise, how much eval is enough),
+   production checks, captures → cases, suite lifecycle, evals in CI, and the checklist (O25).
 4. **One test, eight toolboxes** (comparing frameworks; [blog-part-4.md](blog-part-4.md); P9, plus guide §2 and the P0
    compat spike).
 
-[blog.md](blog.md) stays the working draft for part 3 (§6–§7 were split out as part 2 on 2026-11-16; part 4 was
-drafted directly as blog-part-4.md on 2026-11-17), with its original section numbers. Its §8 opening corrects a
-§1 example that part 1 already states correctly, so reword that paragraph when part 3 is split out.
+[blog.md](blog.md) is the working draft the parts were split from, kept with its original section numbers: §6–§7
+became part 2 on 2026-11-16 and §8–§11 became part 3 on 2026-11-17 (its §8 opening, which corrected a §1 example
+that part 1 already states correctly, was reworded in the split). Part 4 was drafted directly as blog-part-4.md.
 
 ---
 
